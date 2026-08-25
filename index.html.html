@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة ذكريات الخريجين</title>
+  <style>
+    :root {
+      --primary: #0d3b82;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 50px; }
+    header { background: white; border-bottom: 2px solid var(--border); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
+    .btn { padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; background: var(--primary); color: white; }
+    .dashboard-bar { max-width: 1250px; margin: 25px auto 10px; padding: 0 20px; }
+    .stats-badge { background: white; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); width: fit-content; font-size: 0.9rem; }
+    .grid-container { max-width: 1250px; margin: 20px auto; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+    .memory-card { background: var(--card-bg); border-radius: 14px; padding: 18px 15px; display: flex; flex-direction: column; align-items: center; text-align: center; border: 1px solid var(--border); }
+    .memory-card.submitted { border-top: 4px solid var(--primary); }
+    .memory-card.pending { border: 1px dashed #cbd5e1; background: #fafbfc; }
+    .avatar-wrapper { width: 95px; height: 95px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 12px; border: 3px solid var(--border); }
+    .avatar-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+    .card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; }
+    .card-code { font-size: 0.75rem; color: #94a3b8; margin-bottom: 10px; direction: ltr; }
+    .card-note { font-size: 0.85rem; color: #475569; line-height: 1.4; background: #f8fafc; padding: 8px 10px; border-radius: 8px; width: 100%; min-height: 50px; display: flex; align-items: center; justify-content: center; word-break: break-word; }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
+    .modal-box { background: white; border-radius: 16px; width: 100%; max-width: 440px; padding: 24px; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 600; }
+    .form-group input, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; }
+    .preview-box { width: 100px; height: 100px; border-radius: 50%; margin: 10px auto; overflow: hidden; border: 2px dashed var(--primary); display: flex; align-items: center; justify-content: center; }
+    .preview-box img { width: 100%; height: 100%; object-fit: cover; }
+  </style>
+
+  <!-- Firebase Scripts (v8 CDN) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body>
+
+  <header>
+    <h2>🎓 لوحة ذكريات الدفعة</h2>
+    <button class="btn" onclick="openStudentModal()">✍️ تسجيل ذكراك (للطلاب)</button>
+  </header>
+
+  <div class="dashboard-bar">
+    <div class="stats-badge">
+      إجمالي الطلاب: <span id="totalStudents">0</span> | تم توثيق ذكرياتهم: <span id="submittedCount">0</span>
+    </div>
+  </div>
+
+  <div class="grid-container" id="cardsGrid">
+    <p style="grid-column: 1/-1; text-align:center; color:#94a3b8;">جاري جلب البيانات من السيرفر...</p>
+  </div>
+
+  <!-- نافذة تسجيل الطالب -->
+  <div class="modal-overlay" id="studentModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>تسجيل ذكرى خريج</h3>
+        <button class="close-btn" onclick="closeStudentModal()">&times;</button>
+      </div>
+
+      <div id="codeStep">
+        <div class="form-group">
+          <label>أدخل الكود الخاص بك:</label>
+          <input type="text" id="verifyCode" placeholder="مثال: STU-101" style="text-transform: uppercase;">
+        </div>
+        <button class="btn" style="width:100%;" onclick="verifyStudentCode()">تحقق من الكود</button>
+      </div>
+
+      <div id="dataStep" style="display: none;">
+        <div class="form-group">
+          <label>اسم الخريج المعتمد:</label>
+          <input type="text" id="studentNameDisplay" disabled style="background:#f1f5f9;">
+        </div>
+
+        <div class="preview-box" id="avatarPreview">
+          <span style="font-size:2rem; color:#94a3b8;">🎓</span>
+        </div>
+
+        <div class="form-group">
+          <label>صورتك الشخصية:</label>
+          <input type="file" id="studentPhotoInput" accept="image/*" onchange="previewImage(event)">
+        </div>
+
+        <div class="form-group">
+          <label>كلمة للتاريخ / ذكرى تخرجك:</label>
+          <textarea id="studentNoteInput" rows="3" placeholder="اكتب رسالتك لزملائك..."></textarea>
+        </div>
+
+        <button class="btn" style="width: 100%;" id="saveBtn" onclick="saveStudentMemory()">حفظ وتثبيت على اللوحة 🎓</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCv5lNRVRD4kqJLA8lmez7eonzVDkuKx6A",
+      authDomain: "grad-memories.firebaseapp.com",
+      projectId: "grad-memories",
+      storageBucket: "grad-memories.firebasestorage.app",
+      messagingSenderId: "814899044477",
+      appId: "1:814899044477:web:89ed1ba54afeb3e17dd114",
+      measurementId: "G-W27KFYHQF2"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let allStudents = [];
+    let currentDocId = null;
+    let tempPhotoBase64 = '';
+
+    // الاستماع الفوري لقاعدة البيانات
+    db.collection("students").onSnapshot((snapshot) => {
+      allStudents = [];
+      snapshot.forEach(doc => allStudents.push({ id: doc.id, ...doc.data() }));
+      renderBoard();
+    });
+
+    function renderBoard() {
+      const grid = document.getElementById('cardsGrid');
+      grid.innerHTML = '';
+      let submittedCount = 0;
+
+      if (allStudents.length === 0) {
+        grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:#94a3b8; margin:40px 0;">لم يتم إضافة طلاب حتى الآن من قبل المشرف.</p>`;
+      }
+
+      allStudents.forEach(student => {
+        if (student.submitted) submittedCount++;
+        const card = document.createElement('div');
+        card.className = `memory-card ${student.submitted ? 'submitted' : 'pending'}`;
+        card.innerHTML = `
+          <div class="avatar-wrapper">
+            ${student.photo ? `<img src="${student.photo}">` : `<span style="font-size:2.2rem; color:#cbd5e1;">🎓</span>`}
+          </div>
+          <div class="card-name">${student.name}</div>
+          <div class="card-code">${student.code}</div>
+          <div class="card-note">${student.submitted ? student.note : 'في انتظار تسجيل الذكرى...'}</div>
+        `;
+        grid.appendChild(card);
+      });
+
+      document.getElementById('totalStudents').innerText = allStudents.length;
+      document.getElementById('submittedCount').innerText = submittedCount;
+    }
+
+    function openStudentModal() {
+      document.getElementById('codeStep').style.display = 'block';
+      document.getElementById('dataStep').style.display = 'none';
+      document.getElementById('verifyCode').value = '';
+      currentDocId = null;
+      tempPhotoBase64 = '';
+      document.getElementById('studentModal').style.display = 'flex';
+    }
+
+    function closeStudentModal() {
+      document.getElementById('studentModal').style.display = 'none';
+    }
+
+    async function verifyStudentCode() {
+      const inputCode = document.getElementById('verifyCode').value.trim().toUpperCase();
+      if (!inputCode) return alert('يرجى إدخال الكود أولاً.');
+
+      const student = allStudents.find(s => s.code.toUpperCase() === inputCode);
+      if (!student) return alert('❌ الكود غير مسجل في قائمة الخريجين المعتمدين!');
+
+      currentDocId = student.id;
+      document.getElementById('studentNameDisplay').value = student.name;
+      document.getElementById('studentNoteInput').value = student.note || '';
+
+      const avatarBox = document.getElementById('avatarPreview');
+      if (student.photo) {
+        avatarBox.innerHTML = `<img src="${student.photo}">`;
+        tempPhotoBase64 = student.photo;
+      } else {
+        avatarBox.innerHTML = `<span style="font-size:2rem; color:#94a3b8;">🎓</span>`;
+        tempPhotoBase64 = '';
+      }
+
+      document.getElementById('codeStep').style.display = 'none';
+      document.getElementById('dataStep').style.display = 'block';
+    }
+
+    function previewImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          tempPhotoBase64 = e.target.result;
+          document.getElementById('avatarPreview').innerHTML = `<img src="${tempPhotoBase64}">`;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    async function saveStudentMemory() {
+      const note = document.getElementById('studentNoteInput').value.trim();
+      if (!note) return alert('يرجى كتابة كلمة تخرجك.');
+
+      const saveBtn = document.getElementById('saveBtn');
+      saveBtn.disabled = true;
+      saveBtn.innerText = 'جاري الحفظ بالسحابة...';
+
+      try {
+        await db.collection("students").doc(currentDocId).update({
+          note: note,
+          photo: tempPhotoBase64,
+          submitted: true
+        });
+        alert('🎉 تم حفظ وتثبيت ذكراك بنجاح!');
+        closeStudentModal();
+      } catch (err) {
+        alert('حدث خطأ أثناء الحفظ: ' + err.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerText = 'حفظ وتثبيت على اللوحة 🎓';
+      }
+    }
+  </script>
+</body>
+</html>
