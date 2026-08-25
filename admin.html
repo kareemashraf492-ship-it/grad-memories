@@ -3,83 +3,331 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لوحة المشرف - إدارة الخريجين</title>
-  <style>
-    :root {
-      --primary: #0d3b82;
-      --primary-hover: #092a5e;
-      --accent: #d97706;
-      --bg: #f1f5f9;
-      --border: #e2e8f0;
-      --danger: #ef4444;
-      --success: #16a34a;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: var(--bg); color: #1e293b; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 30px 15px; }
-    .container { width: 100%; max-width: 900px; }
-    #loginScreen { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.06); width: 100%; max-width: 400px; margin: 60px auto 0; text-align: center; }
-    .input-field { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 15px; }
-    .btn { padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; background: var(--primary); color: white; transition: 0.2s; }
-    .btn:hover { background: var(--primary-hover); }
-    .btn-slideshow { background: linear-gradient(135deg, #1e3a8a, #d97706); color: white; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1rem; width: 100%; margin-bottom: 15px; }
-    .btn-excel { background: var(--success); color: white; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 14px; border-radius: 6px; font-size: 0.9rem; cursor: pointer; }
-    .btn-excel:hover { background: #15803d; }
-    #adminDashboard { display: none; background: white; border-radius: 16px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.06); }
-    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
-    .form-card { background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 20px; }
-    .form-row { display: flex; gap: 10px; margin-bottom: 10px; }
-    .table-container { max-height: 400px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: right; }
-    th { background: #f8fafc; color: #475569; }
-    .status-tag { padding: 4px 10px; border-radius: 15px; font-size: 0.75rem; font-weight: 600; }
-    .status-tag.done { background: #dcfce7; color: #15803d; }
-    .status-tag.waiting { background: #fef3c7; color: #b45309; }
-    .btn-delete { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; }
-    .excel-box { display: flex; justify-content: space-between; align-items: center; background: #ecfdf5; border: 1px dashed #059669; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; }
-  </style>
+  <title>🎓 لوحة المشرف - إدارة حفل التخرج</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 
-  <!-- مكتبات Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <!-- مكتبة PptxGenJS للباوربوينت -->
   <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
-  <!-- مكتبة SheetJS للإكسيل -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --secondary: #d97706;
+      --gold-gradient: linear-gradient(135deg, #fbbf24, #d97706);
+      --bg-gradient: linear-gradient(180deg, #0f172a 0%, #1e1b4b 50%, #090d16 100%);
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --border: rgba(255, 255, 255, 0.1);
+      --text: #f8fafc;
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Tajawal', sans-serif;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 15px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .glow-sphere {
+      position: fixed;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(217, 119, 6, 0.15) 0%, transparent 70%);
+      top: -100px;
+      right: -100px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 950px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* شاشة تسجيل الدخول الزجاجية */
+    #loginScreen {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      padding: 40px 30px;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      width: 100%;
+      max-width: 420px;
+      margin: 80px auto 0;
+      text-align: center;
+    }
+
+    #loginScreen h2 {
+      color: #ffffff;
+      margin-bottom: 20px;
+      font-weight: 800;
+    }
+
+    #loginScreen h2 span {
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      color: #ffffff;
+      font-size: 1rem;
+      outline: none;
+      margin-bottom: 15px;
+      transition: 0.2s;
+    }
+
+    .input-field:focus {
+      border-color: #fbbf24;
+      box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+    }
+
+    .btn {
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 1rem;
+      transition: 0.3s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-gold {
+      background: var(--gold-gradient);
+      color: #0f172a;
+      box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
+      width: 100%;
+    }
+
+    .btn-gold:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(217, 119, 6, 0.5);
+    }
+
+    /* لوحة التحكم الرئيسية */
+    #adminDashboard {
+      display: none;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 30px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .top-bar h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+    }
+
+    .top-bar h2 span {
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .top-bar-links a, .top-bar-links button {
+      color: #fbbf24;
+      text-decoration: none;
+      font-weight: 700;
+      margin-left: 15px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .top-bar-links button {
+      color: var(--danger);
+    }
+
+    /* بطاقات وأزرار الإجراءات */
+    .btn-slideshow {
+      background: var(--gold-gradient);
+      color: #0f172a;
+      width: 100%;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      padding: 14px;
+      box-shadow: 0 4px 20px rgba(217, 119, 6, 0.3);
+    }
+
+    .btn-slideshow:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(217, 119, 6, 0.5);
+    }
+
+    .excel-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px dashed rgba(16, 185, 129, 0.4);
+      padding: 16px 20px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+    }
+
+    .btn-excel {
+      background: var(--success);
+      color: white;
+      padding: 10px 18px;
+    }
+
+    .btn-excel:hover {
+      background: #059669;
+    }
+
+    .form-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 25px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* جدول الطلاب */
+    .table-container {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.4);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      text-align: right;
+    }
+
+    th {
+      background: rgba(15, 23, 42, 0.9);
+      color: #fbbf24;
+      font-weight: 800;
+    }
+
+    .status-tag {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .status-tag.done {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .status-tag.waiting {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .btn-delete {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: 0.2s;
+    }
+
+    .btn-delete:hover {
+      background: var(--danger);
+      color: white;
+    }
+  </style>
 </head>
 <body>
 
-  <!-- شاشة الدخول للمشرف -->
+  <div class="glow-sphere"></div>
+
+  <!-- شاشة الدخول -->
   <div id="loginScreen">
-    <div style="font-size: 2.5rem; margin-bottom: 10px;">🔐</div>
-    <h2 style="color:var(--primary); margin-bottom:20px;">تسجيل دخول المشرف</h2>
+    <div style="font-size: 3rem; margin-bottom: 15px;">🔐</div>
+    <h2>لوحة تحكم <span>المشرف</span></h2>
     <input type="password" id="adminPasswordInput" class="input-field" placeholder="أدخل كلمة المرور" onkeypress="if(event.key==='Enter') checkPassword()">
-    <button class="btn" style="width:100%;" onclick="checkPassword()">دخول للوحة التحكم</button>
+    <button class="btn btn-gold" onclick="checkPassword()">دخول للوحة التحكم 🚀</button>
   </div>
 
-  <!-- لوحة التحكم -->
+  <!-- لوحة التحكم الرئيسية -->
   <div class="container">
     <div id="adminDashboard">
       <div class="top-bar">
         <div>
-          <h2 style="color:var(--primary);">لوحة إدارة الخريجين والداتا شو</h2>
+          <h2>لوحة إدارة <span>الخريجين والداتا شو</span> 🎓</h2>
         </div>
-        <div>
-          <a href="index.html" target="_blank" style="margin-left:15px; color:var(--primary); font-weight:bold; text-decoration:none;">🌐 اللوحة العامة</a>
-          <button onclick="location.reload()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;">🚪 خروج</button>
+        <div class="top-bar-links">
+          <a href="index.html" target="_blank">🌐 عرض اللوحة العامة</a>
+          <button onclick="location.reload()">🚪 خروج</button>
         </div>
       </div>
 
-      <!-- زر تصدير الباوربوينت المعدل -->
       <button class="btn btn-slideshow" id="exportPptxBtn" onclick="generatePowerPoint()">
         🎬 تحميل عرض الداتا شو للحفل (PowerPoint .pptx)
       </button>
 
-      <!-- استيراد ملف إكسيل -->
+      <!-- رفع إكسيل -->
       <div class="excel-box">
         <div>
-          <strong style="color: #065f46;">📊 استيراد قائمة الطلاب من ملف Excel:</strong>
-          <p style="font-size: 0.8rem; color: #047857; margin-top: 3px;">يحتوي على عمود للكود وعمود للاسم.</p>
+          <strong style="color: #34d399; font-size:1.05rem;">📊 استيراد قائمة الطلاب من ملف Excel:</strong>
+          <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 3px;">يرجى التأكد من احتواء الملف على عمود للكود وعمود للاسم.</p>
         </div>
         <button class="btn btn-excel" onclick="document.getElementById('excelFileInput').click()">
           📁 رفع ملف إكسيل
@@ -89,12 +337,12 @@
 
       <!-- إضافة طالب يدوي -->
       <div class="form-card">
-        <h4 style="margin-bottom: 10px;">➕ إضافة طالب يدوي:</h4>
+        <h4 style="margin-bottom: 12px; color: #fbbf24;">➕ إضافة طالب يدوي:</h4>
         <div class="form-row">
-          <input type="text" id="newCode" class="input-field" placeholder="الكود (مثال: 2026-01)" style="flex:1; margin-bottom:0;">
+          <input type="text" id="newCode" class="input-field" placeholder="الكود (مثال: 2020523)" style="flex:1; margin-bottom:0;">
           <input type="text" id="newName" class="input-field" placeholder="اسم الطالب رباعي" style="flex:2; margin-bottom:0;">
         </div>
-        <button class="btn" style="width:100%; margin-top:10px;" id="addBtn" onclick="addStudent()">حفظ الطالب في قاعدة البيانات</button>
+        <button class="btn btn-gold" style="margin-top:12px;" id="addBtn" onclick="addStudent()">حفظ الطالب في السحابة 💾</button>
       </div>
 
       <!-- جدول الطلاب -->
@@ -110,7 +358,7 @@
             </tr>
           </thead>
           <tbody id="studentsTableBody">
-            <tr><td colspan="5" style="text-align:center;">جاري جلب البيانات...</td></tr>
+            <tr><td colspan="5" style="text-align:center; padding: 25px; color:#94a3b8;">جاري جلب البيانات السحابية... ✨</td></tr>
           </tbody>
         </table>
       </div>
@@ -158,17 +406,17 @@
       tbody.innerHTML = '';
 
       if (studentsList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">لا يوجد طلاب مسجلون حتى الآن.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 25px; color:#94a3b8;">لا يوجد طلاب مسجلون حتى الآن.</td></tr>`;
         return;
       }
 
       studentsList.forEach(student => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><strong>${student.code}</strong></td>
-          <td>${student.name}</td>
-          <td><span class="status-tag ${student.submitted ? 'done' : 'waiting'}">${student.submitted ? 'سجّل ذكراه' : 'في الانتظار'}</span></td>
-          <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${student.note || '—'}</td>
+          <td><strong style="color:#fbbf24;">${student.code}</strong></td>
+          <td style="font-weight:700;">${student.name}</td>
+          <td><span class="status-tag ${student.submitted ? 'done' : 'waiting'}">${student.submitted ? 'تم التوثيق 🎓' : 'في الانتظار ⏳'}</span></td>
+          <td style="max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#cbd5e1;">${student.note || '—'}</td>
           <td><button class="btn-delete" onclick="deleteStudent('${student.id}', '${student.name}')">حذف</button></td>
         `;
         tbody.appendChild(tr);
@@ -275,7 +523,6 @@
       }
     }
 
-    // توليد وتنزيل عرض الباوربوينت للداتا شو بتنسيق متناسق ومضبوط
     async function generatePowerPoint() {
       const submittedStudents = studentsList.filter(s => s.submitted);
 
@@ -290,9 +537,8 @@
 
       try {
         let pptx = new PptxGenJS();
-        pptx.layout = 'LAYOUT_16x9'; // الأبعاد القياسية للشاشة العريضة (10 × 5.625 إنش)
+        pptx.layout = 'LAYOUT_16x9';
 
-        // 1. الشريحة الافتتاحية
         let introSlide = pptx.addSlide();
         introSlide.background = { color: '0D1B2A' };
 
@@ -309,16 +555,13 @@
           fontSize: 22, color: 'D97706', align: 'center', isRTL: true
         });
 
-        // 2. شرائح الخريجين
         submittedStudents.forEach((student) => {
           let slide = pptx.addSlide();
           slide.background = { color: '0F172A' };
 
-          // شريط علوي وسفلي كامل العرض
           slide.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0, w: 10.0, h: 0.12, fill: { color: 'D97706' } });
           slide.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 5.5, w: 10.0, h: 0.12, fill: { color: 'D97706' } });
 
-          // إطار وصورة الطالب (يمين الشريحة)
           slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
             x: 6.6, y: 0.7, w: 2.8, h: 4.2,
             fill: { color: '1E293B' },
@@ -339,19 +582,16 @@
             });
           }
 
-          // اسم الخريج (يسار الشريحة)
           slide.addText(student.name, {
             x: 0.6, y: 0.8, w: 5.7, h: 0.6,
             fontSize: 26, color: 'FFFFFF', bold: true, align: 'right', isRTL: true
           });
 
-          // كود الخريج
           slide.addText(`كود الخريج: ${student.code}`, {
             x: 0.6, y: 1.45, w: 5.7, h: 0.4,
             fontSize: 14, color: 'D97706', bold: true, align: 'right', isRTL: true
           });
 
-          // مربع الذكرى
           slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
             x: 0.6, y: 2.0, w: 5.7, h: 2.9,
             fill: { color: '1E293B' },
@@ -359,7 +599,6 @@
             rectRadius: 0.15
           });
 
-          // نص الذكرى
           slide.addText(`“ ${student.note || 'مبروك التخرج والتوفيق دائماً!'} ”`, {
             x: 0.8, y: 2.2, w: 5.3, h: 2.5,
             fontSize: 16, color: 'E2E8F0', italic: true, align: 'right', isRTL: true, valign: 'top'
