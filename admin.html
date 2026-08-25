@@ -39,13 +39,17 @@
     .excel-box { display: flex; justify-content: space-between; align-items: center; background: #ecfdf5; border: 1px dashed #059669; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; }
   </style>
 
+  <!-- مكتبات Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <!-- مكتبة PptxGenJS للباوربوينت -->
   <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+  <!-- مكتبة SheetJS للإكسيل -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
+  <!-- شاشة الدخول للمشرف -->
   <div id="loginScreen">
     <div style="font-size: 2.5rem; margin-bottom: 10px;">🔐</div>
     <h2 style="color:var(--primary); margin-bottom:20px;">تسجيل دخول المشرف</h2>
@@ -53,6 +57,7 @@
     <button class="btn" style="width:100%;" onclick="checkPassword()">دخول للوحة التحكم</button>
   </div>
 
+  <!-- لوحة التحكم -->
   <div class="container">
     <div id="adminDashboard">
       <div class="top-bar">
@@ -65,10 +70,12 @@
         </div>
       </div>
 
+      <!-- زر تصدير الباوربوينت المعدل -->
       <button class="btn btn-slideshow" id="exportPptxBtn" onclick="generatePowerPoint()">
         🎬 تحميل عرض الداتا شو للحفل (PowerPoint .pptx)
       </button>
 
+      <!-- استيراد ملف إكسيل -->
       <div class="excel-box">
         <div>
           <strong style="color: #065f46;">📊 استيراد قائمة الطلاب من ملف Excel:</strong>
@@ -80,6 +87,7 @@
         <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleExcelUpload(event)">
       </div>
 
+      <!-- إضافة طالب يدوي -->
       <div class="form-card">
         <h4 style="margin-bottom: 10px;">➕ إضافة طالب يدوي:</h4>
         <div class="form-row">
@@ -89,6 +97,7 @@
         <button class="btn" style="width:100%; margin-top:10px;" id="addBtn" onclick="addStudent()">حفظ الطالب في قاعدة البيانات</button>
       </div>
 
+      <!-- جدول الطلاب -->
       <div class="table-container">
         <table>
           <thead>
@@ -266,6 +275,7 @@
       }
     }
 
+    // توليد وتنزيل عرض الباوربوينت للداتا شو بتنسيق متناسق ومضبوط
     async function generatePowerPoint() {
       const submittedStudents = studentsList.filter(s => s.submitted);
 
@@ -280,68 +290,79 @@
 
       try {
         let pptx = new PptxGenJS();
-        pptx.layout = 'LAYOUT_16x9';
+        pptx.layout = 'LAYOUT_16x9'; // الأبعاد القياسية للشاشة العريضة (10 × 5.625 إنش)
 
+        // 1. الشريحة الافتتاحية
         let introSlide = pptx.addSlide();
         introSlide.background = { color: '0D1B2A' };
-        introSlide.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0, w: '100%', h: 0.2, fill: { color: 'D97706' } });
-        introSlide.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 7.3, w: '100%', h: 0.2, fill: { color: 'D97706' } });
+
+        introSlide.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0, w: 10.0, h: 0.15, fill: { color: 'D97706' } });
+        introSlide.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 5.47, w: 10.0, h: 0.15, fill: { color: 'D97706' } });
 
         introSlide.addText('🎓 حَفْلُ تَخَرُّجِ الدُّفْعَةِ', {
-          x: 1, y: 2.2, w: 11.3, h: 1.2,
-          fontSize: 44, color: 'FFFFFF', bold: true, align: 'center', rtlMode: true
+          x: 0.5, y: 1.8, w: 9.0, h: 1.0,
+          fontSize: 40, color: 'FFFFFF', bold: true, align: 'center', isRTL: true
         });
 
         introSlide.addText('ذكريات وطموحات تصنع المستقبل ✨', {
-          x: 1, y: 3.6, w: 11.3, h: 0.8,
-          fontSize: 24, color: 'D97706', align: 'center', rtlMode: true
+          x: 0.5, y: 2.9, w: 9.0, h: 0.8,
+          fontSize: 22, color: 'D97706', align: 'center', isRTL: true
         });
 
+        // 2. شرائح الخريجين
         submittedStudents.forEach((student) => {
           let slide = pptx.addSlide();
           slide.background = { color: '0F172A' };
 
-          slide.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0, w: '100%', h: 0.15, fill: { color: 'D97706' } });
-          slide.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 7.35, w: '100%', h: 0.15, fill: { color: 'D97706' } });
+          // شريط علوي وسفلي كامل العرض
+          slide.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0, w: 10.0, h: 0.12, fill: { color: 'D97706' } });
+          slide.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 5.5, w: 10.0, h: 0.12, fill: { color: 'D97706' } });
 
+          // إطار وصورة الطالب (يمين الشريحة)
           slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
-            x: 8.3, y: 1.2, w: 4.2, h: 5.2,
+            x: 6.6, y: 0.7, w: 2.8, h: 4.2,
             fill: { color: '1E293B' },
-            line: { color: 'D97706', width: 2 }
+            line: { color: 'D97706', width: 2 },
+            rectRadius: 0.15
           });
 
           if (student.photo && student.photo.startsWith('data:image')) {
             slide.addImage({
               data: student.photo,
-              x: 8.5, y: 1.4, w: 3.8, h: 4.8,
+              x: 6.75, y: 0.85, w: 2.5, h: 3.9,
               rounding: true
             });
           } else {
             slide.addText('🎓', {
-              x: 8.5, y: 2.5, w: 3.8, h: 2,
-              fontSize: 65, align: 'center'
+              x: 6.75, y: 1.8, w: 2.5, h: 1.5,
+              fontSize: 60, align: 'center'
             });
           }
 
+          // اسم الخريج (يسار الشريحة)
           slide.addText(student.name, {
-            x: 0.8, y: 1.4, w: 7.0, h: 0.9,
-            fontSize: 32, color: 'FFFFFF', bold: true, align: 'right', rtlMode: true
+            x: 0.6, y: 0.8, w: 5.7, h: 0.6,
+            fontSize: 26, color: 'FFFFFF', bold: true, align: 'right', isRTL: true
           });
 
+          // كود الخريج
           slide.addText(`كود الخريج: ${student.code}`, {
-            x: 0.8, y: 2.3, w: 7.0, h: 0.5,
-            fontSize: 16, color: 'D97706', bold: true, align: 'right', rtlMode: true
+            x: 0.6, y: 1.45, w: 5.7, h: 0.4,
+            fontSize: 14, color: 'D97706', bold: true, align: 'right', isRTL: true
           });
 
+          // مربع الذكرى
           slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
-            x: 0.8, y: 3.1, w: 7.0, h: 3.3,
+            x: 0.6, y: 2.0, w: 5.7, h: 2.9,
             fill: { color: '1E293B' },
-            line: { color: '334155', width: 1 }
+            line: { color: '334155', width: 1 },
+            rectRadius: 0.15
           });
 
-          slide.addText(`“ ${student.note || 'مبروك التخرج!'} ”`, {
-            x: 1.1, y: 3.4, w: 6.4, h: 2.7,
-            fontSize: 19, color: 'E2E8F0', italic: true, align: 'right', rtlMode: true
+          // نص الذكرى
+          slide.addText(`“ ${student.note || 'مبروك التخرج والتوفيق دائماً!'} ”`, {
+            x: 0.8, y: 2.2, w: 5.3, h: 2.5,
+            fontSize: 16, color: 'E2E8F0', italic: true, align: 'right', isRTL: true, valign: 'top'
           });
         });
 
