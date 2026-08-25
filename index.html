@@ -14,7 +14,7 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 50px; }
-    header { background: white; border-bottom: 2px solid var(--border); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
+    header { background: white; border-bottom: 2px solid var(--border); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
     .btn { padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; background: var(--primary); color: white; }
     .dashboard-bar { max-width: 1250px; margin: 25px auto 10px; padding: 0 20px; }
     .stats-badge { background: white; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); width: fit-content; font-size: 0.9rem; }
@@ -38,7 +38,6 @@
     .preview-box img { width: 100%; height: 100%; object-fit: cover; }
   </style>
 
-  <!-- Firebase Scripts (v8 CDN) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
@@ -59,7 +58,6 @@
     <p style="grid-column: 1/-1; text-align:center; color:#94a3b8;">جاري جلب البيانات من السيرفر...</p>
   </div>
 
-  <!-- نافذة تسجيل الطالب -->
   <div class="modal-overlay" id="studentModal">
     <div class="modal-box">
       <div class="modal-header">
@@ -70,7 +68,7 @@
       <div id="codeStep">
         <div class="form-group">
           <label>أدخل الكود الخاص بك:</label>
-          <input type="text" id="verifyCode" placeholder="مثال: STU-101" style="text-transform: uppercase;">
+          <input type="text" id="verifyCode" placeholder="مثال: 2020523" style="text-transform: uppercase;">
         </div>
         <button class="btn" style="width:100%;" onclick="verifyStudentCode()">تحقق من الكود</button>
       </div>
@@ -118,7 +116,6 @@
     let currentDocId = null;
     let tempPhotoBase64 = '';
 
-    // الاستماع الفوري لقاعدة البيانات
     db.collection("students").onSnapshot((snapshot) => {
       allStudents = [];
       snapshot.forEach(doc => allStudents.push({ id: doc.id, ...doc.data() }));
@@ -170,21 +167,19 @@
       const inputCode = document.getElementById('verifyCode').value.trim().toUpperCase();
       if (!inputCode) return alert('يرجى إدخال الكود أولاً.');
 
-      const student = allStudents.find(s => s.code.toUpperCase() === inputCode);
+      const student = allStudents.find(s => String(s.code).toUpperCase() === inputCode);
       if (!student) return alert('❌ الكود غير مسجل في قائمة الخريجين المعتمدين!');
+
+      if (student.submitted) {
+        alert(`⚠️ عذراً يا ${student.name}، لقد قمت بتسجيل ذكراك مسبقاً ولا يمكن تعديلها.`);
+        return;
+      }
 
       currentDocId = student.id;
       document.getElementById('studentNameDisplay').value = student.name;
-      document.getElementById('studentNoteInput').value = student.note || '';
-
-      const avatarBox = document.getElementById('avatarPreview');
-      if (student.photo) {
-        avatarBox.innerHTML = `<img src="${student.photo}">`;
-        tempPhotoBase64 = student.photo;
-      } else {
-        avatarBox.innerHTML = `<span style="font-size:2rem; color:#94a3b8;">🎓</span>`;
-        tempPhotoBase64 = '';
-      }
+      document.getElementById('studentNoteInput').value = '';
+      document.getElementById('avatarPreview').innerHTML = `<span style="font-size:2rem; color:#94a3b8;">🎓</span>`;
+      tempPhotoBase64 = '';
 
       document.getElementById('codeStep').style.display = 'none';
       document.getElementById('dataStep').style.display = 'block';
