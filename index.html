@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎓 لوحة شرف وتكريم الدفعة 93 بمعهد طيبة العالي لتكنولوجيا الادارة والمعلومات </title>
+  <title>🎓 لوحة شرف وتكريم الدفعة 93 بمعهد طيبة العالي لتكنولوجيا الادارة والمعلومات</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -85,9 +85,11 @@
 
     header h1 {
       color: #ffffff;
-      font-size: 2.8rem;
+      font-size: 2.2rem;
       font-weight: 900;
-      margin-bottom: 8px;
+      line-height: 1.4;
+      max-width: 900px;
+      margin: 0 auto 12px;
       text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     }
 
@@ -376,7 +378,7 @@
     }
 
     .project-board {
-      background: rgba(15, 23, 42, 0.8);
+      background: rgba(15, 23, 42, 0.85);
       border: 1.5px solid rgba(129, 140, 248, 0.4);
       border-radius: 24px;
       padding: 24px;
@@ -415,7 +417,7 @@
 
     .project-team-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
       gap: 16px;
     }
 
@@ -503,7 +505,7 @@
 
   <header>
     <div class="cap-badge">🎉 ألف مبروك التخرج</div>
-    <h1>لوحة ذكريات وتكريم <span>دفعة التخرج</span> 🎓</h1>
+    <h1>لوحة شرف وتكريم <span>الدفعة 93 بمعهد طيبة العالي لتكنولوجيا الادارة والمعلومات</span> 🎓</h1>
     <p>لحظات وتعب سنين نوثقها هنا لتظل فخراً وذكرى خالدة بيننا مهما طالت الأيام ✨</p>
 
     <div class="action-bar">
@@ -529,6 +531,7 @@
     </div>
   </div>
 
+  <!-- 1. لوحة أوائل المعهد -->
   <div id="topStudentsSection" style="display: none;">
     <div class="section-title-wrap">
       <h2 class="section-title">👑 لوحة شرف <span>أوائل المعهد</span></h2>
@@ -536,6 +539,7 @@
     <div class="grid-container" id="topCardsGrid"></div>
   </div>
 
+  <!-- 2. لوحة وبوردات مشاريع التخرج المستقلة -->
   <div id="projectsSection" style="display: none; max-width: 1250px; margin: 0 auto; padding: 0 20px;">
     <div class="section-title-wrap" style="padding:0; margin-bottom:20px;">
       <h2 class="section-title">💡 لوحة شرف <span>مشاريع التخرج المتميزة</span></h2>
@@ -543,12 +547,14 @@
     <div id="projectsContainer"></div>
   </div>
 
+  <!-- 3. أقسام التخصصات -->
   <div id="departmentsContainer">
     <p style="text-align:center; color:#94a3b8; font-size:1.1rem; padding: 40px 0;">
       جاري تحميل وتنسيق ذكريات الدفعة السحابية... ✨
     </p>
   </div>
 
+  <!-- Modal تفاصيل الطالب المكبرة -->
   <div class="modal-overlay" id="profileModal" onclick="if(event.target===this) closeProfileModal()">
     <div class="modal-box" style="text-align: center;">
       <div class="modal-header">
@@ -590,6 +596,7 @@
     </div>
   </div>
 
+  <!-- Modal تسجيل الطالب -->
   <div class="modal-overlay" id="studentModal">
     <div class="modal-box">
       <div class="modal-header">
@@ -673,12 +680,6 @@
       renderBoard();
     }, (error) => {
       console.error("Firestore Error:", error);
-      document.getElementById('departmentsContainer').innerHTML = `
-        <div style="text-align:center; padding:30px; color:#ef4444; background:rgba(239,68,68,0.1); border-radius:15px; max-width:600px; margin:20px auto;">
-          <h3>⚠️ تعذر جلب البيانات</h3>
-          <p style="font-size:0.9rem; margin-top:5px; color:#fca5a5;">يرجى مراجعة صلاحيات Firestore Rules في Firebase Console.</p>
-        </div>
-      `;
     });
 
     function createCardHTML(student, deptRank = 0) {
@@ -733,6 +734,7 @@
         return nameMatch || deptMatch || projMatch || honorsMatch;
       });
 
+      // 1. عرض أوائل المعهد بالأعلى
       const topStudents = filteredStudents.filter(s => s.isTop);
       topStudents.sort((a, b) => (parseFloat(b.gpa) || 0) - (parseFloat(a.gpa) || 0));
 
@@ -745,6 +747,7 @@
         topSection.style.display = 'none';
       }
 
+      // 2. تجميع وعرض بوردات مشاريع التخرج المستقلة
       const projectGroups = {};
       filteredStudents.forEach(student => {
         if (student.projectName && student.projectName.trim() !== '') {
@@ -790,6 +793,7 @@
         return;
       }
 
+      // 3. تجميع وترتيب التخصصات مع حساب أول 10
       const deptGroups = {};
       filteredStudents.forEach(student => {
         const dept = student.department ? student.department.trim() : 'عام';
