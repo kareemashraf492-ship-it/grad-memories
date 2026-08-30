@@ -530,9 +530,8 @@
   <div class="glow-sphere-2"></div>
 
   <header>
-    <!-- لوجو معهد طيبة العالي المرفوع -->
     <div class="institute-logo-wrap">
-     <img src="logo.jpg" alt="شعار معهد طيبة العالي">
+      <img src="logo.jpg" alt="شعار معهد طيبة العالي" onerror="this.onerror=null; this.src='logo.png';">
     </div>
 
     <div class="cap-badge">🎉 ألف مبروك التخرج</div>
@@ -762,6 +761,22 @@
       let submittedCount = 0;
       allStudents.forEach(s => { if (s.submitted) submittedCount++; });
 
+      // 1. حساب الترتيب الحقيقي الثابت لكل طالب في قسمه
+      const allDeptGroups = {};
+      allStudents.forEach(student => {
+        const dept = student.department ? student.department.trim() : 'عام';
+        if (!allDeptGroups[dept]) allDeptGroups[dept] = [];
+        allDeptGroups[dept].push(student);
+      });
+
+      Object.keys(allDeptGroups).forEach(dept => {
+        allDeptGroups[dept].sort((a, b) => (parseFloat(b.gpa) || 0) - (parseFloat(a.gpa) || 0));
+        allDeptGroups[dept].forEach((student, idx) => {
+          student.actualDeptRank = idx + 1;
+        });
+      });
+
+      // 2. تصفية نتائج البحث
       const filteredStudents = allStudents.filter(s => {
         const nameMatch = String(s.name || '').toLowerCase().includes(query);
         const deptMatch = String(s.department || '').toLowerCase().includes(query);
@@ -770,20 +785,20 @@
         return nameMatch || deptMatch || projMatch || honorsMatch;
       });
 
-      // 1. عرض أوائل المعهد بالأعلى
+      // 3. عرض أوائل المعهد بالأعلى
       const topStudents = filteredStudents.filter(s => s.isTop);
       topStudents.sort((a, b) => (parseFloat(b.gpa) || 0) - (parseFloat(a.gpa) || 0));
 
       if (topStudents.length > 0) {
         topSection.style.display = 'block';
         topStudents.forEach(student => {
-          topGrid.innerHTML += createCardHTML(student, 0);
+          topGrid.innerHTML += createCardHTML(student, student.actualDeptRank || 0);
         });
       } else {
         topSection.style.display = 'none';
       }
 
-      // 2. تجميع وعرض بوردات مشاريع التخرج المستقلة
+      // 4. تجميع وعرض بوردات مشاريع التخرج المستقلة
       const projectGroups = {};
       filteredStudents.forEach(student => {
         if (student.projectName && student.projectName.trim() !== '') {
@@ -817,7 +832,7 @@
 
           const teamGrid = projDiv.querySelector('.project-team-grid');
           projData.members.forEach(member => {
-            teamGrid.innerHTML += createCardHTML(member, 0);
+            teamGrid.innerHTML += createCardHTML(member, member.actualDeptRank || 0);
           });
         });
       } else {
@@ -829,21 +844,23 @@
         return;
       }
 
-      // 3. تجميع وترتيب التخصصات مع حساب أول 10
-      const deptGroups = {};
+      // 5. تجميع وترتيب التخصصات بالترتيب الحقيقي
+      const filteredDeptGroups = {};
       filteredStudents.forEach(student => {
         const dept = student.department ? student.department.trim() : 'عام';
-        if (!deptGroups[dept]) deptGroups[dept] = [];
-        deptGroups[dept].push(student);
+        if (!filteredDeptGroups[dept]) filteredDeptGroups[dept] = [];
+        filteredDeptGroups[dept].push(student);
       });
 
-      Object.keys(deptGroups).forEach(dept => {
-        deptGroups[dept].sort((a, b) => (parseFloat(b.gpa) || 0) - (parseFloat(a.gpa) || 0));
-      });
-
-      const sortedDepts = Object.keys(deptGroups).map(dept => {
-        const topGpa = deptGroups[dept].length > 0 ? (parseFloat(deptGroups[dept][0].gpa) || 0) : 0;
-        return { name: dept, topGpa: topGpa, students: deptGroups[dept] };
+      const sortedDepts = Object.keys(filteredDeptGroups).map(dept => {
+        const topGpaInDept = allDeptGroups[dept] && allDeptGroups[dept].length > 0 
+          ? (parseFloat(allDeptGroups[dept][0].gpa) || 0) 
+          : 0;
+        return {
+          name: dept,
+          topGpa: topGpaInDept,
+          students: filteredDeptGroups[dept]
+        };
       });
 
       sortedDepts.sort((a, b) => b.topGpa - a.topGpa);
@@ -860,9 +877,8 @@
         deptsContainer.appendChild(sectionDiv);
 
         const currentGrid = sectionDiv.querySelector('.grid-container');
-        group.students.forEach((student, index) => {
-          const deptRank = index + 1;
-          currentGrid.innerHTML += createCardHTML(student, deptRank);
+        group.students.forEach(student => {
+          currentGrid.innerHTML += createCardHTML(student, student.actualDeptRank || 0);
         });
       });
 
