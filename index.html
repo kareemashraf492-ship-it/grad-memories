@@ -18,6 +18,7 @@
       --primary: #1e3a8a;
       --secondary: #d97706;
       --gold-gradient: linear-gradient(135deg, #fbbf24, #d97706);
+      --purple-gradient: linear-gradient(135deg, #818cf8, #c084fc);
       --bg-gradient: linear-gradient(180deg, #0f172a 0%, #1e1b4b 50%, #090d16 100%);
       --card-bg: rgba(30, 41, 59, 0.75);
       --border: rgba(255, 255, 255, 0.12);
@@ -142,12 +143,6 @@
       backdrop-filter: blur(8px);
     }
 
-    .btn-fireworks:hover {
-      background: rgba(255, 255, 255, 0.18);
-      transform: translateY(-2px);
-    }
-
-    /* شريط البحث في الواجهة الرئيسية */
     .search-wrapper {
       position: relative;
       z-index: 1;
@@ -270,18 +265,32 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
       border: 1px solid var(--border);
       transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-      overflow: hidden;
+      cursor: pointer;
     }
 
     .memory-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 18px 40px rgba(217, 119, 6, 0.25);
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 18px 40px rgba(217, 119, 6, 0.3);
+      border-color: #fbbf24;
     }
 
     .memory-card.top-rank {
       border: 2px solid #fbbf24;
       background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
       box-shadow: 0 12px 35px rgba(251, 191, 36, 0.25);
+    }
+
+    .badge-top-10 {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(59, 130, 246, 0.2);
+      border: 1px solid rgba(59, 130, 246, 0.5);
+      color: #93c5fd;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 20px;
     }
 
     .crown-tag {
@@ -295,15 +304,6 @@
       padding: 4px 10px;
       border-radius: 20px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .memory-card.submitted { border: 1.5px solid rgba(251, 191, 36, 0.7); }
-    .memory-card.pending {
-      border: 2px dashed rgba(255, 255, 255, 0.15);
-      background: rgba(15, 23, 42, 0.5);
     }
 
     .avatar-wrapper {
@@ -324,18 +324,38 @@
 
     .card-name { font-weight: 800; font-size: 1.15rem; color: #ffffff; margin-bottom: 4px; }
     .card-dept { font-size: 0.85rem; color: #94a3b8; font-weight: 700; margin-bottom: 8px; }
-    .card-gpa-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.85rem;
+    
+    .card-badges-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .badge-pill {
+      font-size: 0.75rem;
       font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    .badge-gpa {
       color: #fbbf24;
       background: rgba(251, 191, 36, 0.12);
       border: 1px solid rgba(251, 191, 36, 0.3);
-      padding: 4px 14px;
-      border-radius: 20px;
-      margin-bottom: 14px;
+    }
+
+    .badge-honors {
+      color: #c084fc;
+      background: rgba(192, 132, 252, 0.12);
+      border: 1px solid rgba(192, 132, 252, 0.3);
+    }
+
+    .badge-proj {
+      color: #34d399;
+      background: rgba(52, 211, 153, 0.12);
+      border: 1px solid rgba(52, 211, 153, 0.3);
     }
 
     .card-note {
@@ -347,7 +367,7 @@
       padding: 12px 14px;
       border-radius: 14px;
       width: 100%;
-      min-height: 70px;
+      min-height: 65px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -355,18 +375,56 @@
       font-style: italic;
     }
 
-    .memory-card.pending .card-note {
-      background: rgba(255, 255, 255, 0.03);
-      color: #64748b;
-      font-style: normal;
+    .project-board {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1.5px solid rgba(129, 140, 248, 0.4);
+      border-radius: 24px;
+      padding: 24px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .project-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .project-rank-badge {
+      background: var(--purple-gradient);
+      color: #0f172a;
+      font-weight: 900;
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+    }
+
+    .project-team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 16px;
     }
 
     .modal-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.8);
-      backdrop-filter: blur(10px);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
       justify-content: center;
       align-items: center;
       z-index: 1000;
@@ -378,10 +436,11 @@
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 24px;
       width: 100%;
-      max-width: 450px;
+      max-width: 480px;
       padding: 28px;
       box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
       color: #ffffff;
+      position: relative;
     }
 
     .modal-header {
@@ -396,6 +455,33 @@
     .modal-header h3 { font-size: 1.35rem; font-weight: 800; color: #fbbf24; }
     .close-btn { background: none; border: none; font-size: 1.6rem; cursor: pointer; color: #94a3b8; }
 
+    .profile-avatar-large {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      border: 4px solid #fbbf24;
+      margin: 0 auto 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(217, 119, 6, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f172a;
+    }
+
+    .profile-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
+
+    .profile-info-item {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
     .form-group { margin-bottom: 16px; }
     .form-group label { display: block; margin-bottom: 6px; font-size: 0.95rem; font-weight: 700; color: #cbd5e1; }
     .form-group input, .form-group textarea {
@@ -407,28 +493,7 @@
       color: #ffffff;
       font-size: 1rem;
       outline: none;
-      transition: 0.2s;
     }
-
-    .form-group input:focus, .form-group textarea:focus {
-      border-color: #fbbf24;
-      box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
-    }
-
-    .preview-box {
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      margin: 10px auto 15px;
-      overflow: hidden;
-      border: 3px dashed #fbbf24;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(15, 23, 42, 0.6);
-    }
-
-    .preview-box img { width: 100%; height: 100%; object-fit: cover; }
   </style>
 </head>
 <body>
@@ -451,10 +516,9 @@
     </div>
   </header>
 
-  <!-- صندوق البحث المباشر في الواجهة -->
   <div class="search-wrapper">
     <span class="search-icon">🔍</span>
-    <input type="text" id="publicSearchInput" class="search-input-box" placeholder="ابحث باسم الطالب أو التخصص..." oninput="handlePublicSearch()">
+    <input type="text" id="publicSearchInput" class="search-input-box" placeholder="ابحث باسم الطالب أو التخصص أو اسم المشروع..." oninput="handlePublicSearch()">
   </div>
 
   <div class="stats-container">
@@ -465,7 +529,6 @@
     </div>
   </div>
 
-  <!-- لوحة شرف أوائل المعهد -->
   <div id="topStudentsSection" style="display: none;">
     <div class="section-title-wrap">
       <h2 class="section-title">👑 لوحة شرف <span>أوائل المعهد</span></h2>
@@ -473,14 +536,60 @@
     <div class="grid-container" id="topCardsGrid"></div>
   </div>
 
-  <!-- أقسام التخصصات -->
+  <div id="projectsSection" style="display: none; max-width: 1250px; margin: 0 auto; padding: 0 20px;">
+    <div class="section-title-wrap" style="padding:0; margin-bottom:20px;">
+      <h2 class="section-title">💡 لوحة شرف <span>مشاريع التخرج المتميزة</span></h2>
+    </div>
+    <div id="projectsContainer"></div>
+  </div>
+
   <div id="departmentsContainer">
     <p style="text-align:center; color:#94a3b8; font-size:1.1rem; padding: 40px 0;">
-      جاري تحميل وتنسيق ذكريات الدفعة حسب التخصصات والمعدلات... ✨
+      جاري تحميل وتنسيق ذكريات الدفعة السحابية... ✨
     </p>
   </div>
 
-  <!-- نافذة تسجيل الذكرى -->
+  <div class="modal-overlay" id="profileModal" onclick="if(event.target===this) closeProfileModal()">
+    <div class="modal-box" style="text-align: center;">
+      <div class="modal-header">
+        <h3>🎓 بطاقة الخريج الرسمية</h3>
+        <button class="close-btn" onclick="closeProfileModal()">&times;</button>
+      </div>
+
+      <div class="profile-avatar-large" id="modalLargeAvatar">
+        <span style="font-size:4rem;">🎓</span>
+      </div>
+
+      <h2 id="modalStudentName" style="color:#ffffff; font-weight:900; margin-bottom:6px;">—</h2>
+      <p id="modalStudentDept" style="color:#fbbf24; font-weight:700; margin-bottom:15px;">—</p>
+
+      <div class="profile-info-item">
+        <span style="color:#94a3b8;">⭐ المعدل التراكمي:</span>
+        <strong id="modalStudentGpa" style="color:#34d399; font-size:1.1rem;">—</strong>
+      </div>
+
+      <div class="profile-info-item" id="modalRankWrap">
+        <span style="color:#94a3b8;">🏅 الترتيب والشرف:</span>
+        <strong id="modalStudentRank" style="color:#fbbf24;">—</strong>
+      </div>
+
+      <div class="profile-info-item" id="modalHonorsWrap">
+        <span style="color:#94a3b8;">🏆 أوسمة التميز:</span>
+        <strong id="modalStudentHonors" style="color:#c084fc;">—</strong>
+      </div>
+
+      <div class="profile-info-item" id="modalProjWrap">
+        <span style="color:#94a3b8;">💡 مشروع التخرج:</span>
+        <strong id="modalStudentProject" style="color:#818cf8;">—</strong>
+      </div>
+
+      <div style="margin-top:15px; text-align:right;">
+        <label style="color:#94a3b8; font-size:0.85rem; font-weight:bold;">💬 الكلمة التذكارية:</label>
+        <div id="modalStudentNote" class="card-note" style="margin-top:5px; text-align:center;">—</div>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="studentModal">
     <div class="modal-box">
       <div class="modal-header">
@@ -504,7 +613,7 @@
           <input type="text" id="studentNameDisplay" disabled style="background: rgba(15, 23, 42, 0.5); font-weight:bold; color:#fbbf24; border-color: rgba(251, 191, 36, 0.4);">
         </div>
 
-        <div class="preview-box" id="avatarPreview">
+        <div class="avatar-wrapper" id="avatarPreview" style="margin:10px auto;">
           <span style="font-size:2.8rem;">🎓</span>
         </div>
 
@@ -536,7 +645,9 @@
       measurementId: "G-W27KFYHQF2"
     };
 
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
     const db = firebase.firestore();
 
     let allStudents = [];
@@ -546,30 +657,50 @@
     window.addEventListener('load', () => launchConfetti());
 
     function launchConfetti() {
-      confetti({
-        particleCount: 120,
-        spread: 80,
-        origin: { y: 0.6 },
-        colors: ['#fbbf24', '#f59e0b', '#3b82f6', '#10b981', '#ffffff']
-      });
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 120,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ['#fbbf24', '#f59e0b', '#3b82f6', '#10b981', '#ffffff']
+        });
+      }
     }
 
     db.collection("students").onSnapshot((snapshot) => {
       allStudents = [];
       snapshot.forEach(doc => allStudents.push({ id: doc.id, ...doc.data() }));
       renderBoard();
+    }, (error) => {
+      console.error("Firestore Error:", error);
+      document.getElementById('departmentsContainer').innerHTML = `
+        <div style="text-align:center; padding:30px; color:#ef4444; background:rgba(239,68,68,0.1); border-radius:15px; max-width:600px; margin:20px auto;">
+          <h3>⚠️ تعذر جلب البيانات</h3>
+          <p style="font-size:0.9rem; margin-top:5px; color:#fca5a5;">يرجى مراجعة صلاحيات Firestore Rules في Firebase Console.</p>
+        </div>
+      `;
     });
 
-    function createCardHTML(student, isTop = false) {
+    function createCardHTML(student, deptRank = 0) {
+      let top10Badge = (deptRank > 0 && deptRank <= 10) ? `<div class="badge-top-10">🏅 المركز ${deptRank}</div>` : '';
+      let crownTag = student.isTop ? `<div class="crown-tag">👑 أوائل المعهد</div>` : '';
+
       return `
-        <div class="memory-card ${isTop ? 'top-rank' : ''} ${student.submitted ? 'submitted' : 'pending'}">
-          ${isTop ? '<div class="crown-tag">👑 من أوائل المعهد</div>' : ''}
+        <div class="memory-card ${student.isTop ? 'top-rank' : ''} ${student.submitted ? 'submitted' : 'pending'}" onclick="openProfileModal('${student.id}', ${deptRank})">
+          ${crownTag}
+          ${top10Badge}
           <div class="avatar-wrapper">
             ${student.photo ? `<img src="${student.photo}">` : `<span style="font-size:2.8rem;">🎓</span>`}
           </div>
-          <div class="card-name">${student.name}</div>
+          <div class="card-name">${student.name || 'بدون اسم'}</div>
           <div class="card-dept">${student.department || 'خريج المعهد'}</div>
-          <div class="card-gpa-badge">⭐ المعدل التراكمي: ${student.gpa ? student.gpa : '—'}</div>
+          
+          <div class="card-badges-row">
+            <span class="badge-pill badge-gpa">⭐ المعدل: ${student.gpa || '—'}</span>
+            ${student.honors ? `<span class="badge-pill badge-honors">🏆 ${student.honors}</span>` : ''}
+            ${student.projectName ? `<span class="badge-pill badge-proj">💡 ${student.projectName}</span>` : ''}
+          </div>
+
           <div class="card-note">${student.submitted ? `“ ${student.note} ”` : 'في انتظار توثيق الذكرى... ⏳'}</div>
         </div>
       `;
@@ -583,32 +714,75 @@
       const query = (document.getElementById('publicSearchInput')?.value || '').trim().toLowerCase();
       const topGrid = document.getElementById('topCardsGrid');
       const topSection = document.getElementById('topStudentsSection');
+      const projectsSection = document.getElementById('projectsSection');
+      const projectsContainer = document.getElementById('projectsContainer');
       const deptsContainer = document.getElementById('departmentsContainer');
 
       topGrid.innerHTML = '';
+      projectsContainer.innerHTML = '';
       deptsContainer.innerHTML = '';
 
       let submittedCount = 0;
       allStudents.forEach(s => { if (s.submitted) submittedCount++; });
 
-      // تصفية الطلاب حسب نص البحث
       const filteredStudents = allStudents.filter(s => {
         const nameMatch = String(s.name || '').toLowerCase().includes(query);
         const deptMatch = String(s.department || '').toLowerCase().includes(query);
-        return nameMatch || deptMatch;
+        const projMatch = String(s.projectName || '').toLowerCase().includes(query);
+        const honorsMatch = String(s.honors || '').toLowerCase().includes(query);
+        return nameMatch || deptMatch || projMatch || honorsMatch;
       });
 
-      // 1. عرض أوائل المعهد بالأعلى
       const topStudents = filteredStudents.filter(s => s.isTop);
       topStudents.sort((a, b) => (parseFloat(b.gpa) || 0) - (parseFloat(a.gpa) || 0));
 
       if (topStudents.length > 0) {
         topSection.style.display = 'block';
         topStudents.forEach(student => {
-          topGrid.innerHTML += createCardHTML(student, true);
+          topGrid.innerHTML += createCardHTML(student, 0);
         });
       } else {
         topSection.style.display = 'none';
+      }
+
+      const projectGroups = {};
+      filteredStudents.forEach(student => {
+        if (student.projectName && student.projectName.trim() !== '') {
+          const proj = student.projectName.trim();
+          if (!projectGroups[proj]) {
+            projectGroups[proj] = {
+              title: proj,
+              rank: student.projectRank || 'مشروع متميز',
+              members: []
+            };
+          }
+          projectGroups[proj].members.push(student);
+        }
+      });
+
+      const projectKeys = Object.keys(projectGroups);
+      if (projectKeys.length > 0) {
+        projectsSection.style.display = 'block';
+        projectKeys.forEach(projKey => {
+          const projData = projectGroups[projKey];
+          const projDiv = document.createElement('div');
+          projDiv.className = 'project-board';
+          projDiv.innerHTML = `
+            <div class="project-header">
+              <div class="project-title">💡 مشروع: <span style="color:#fbbf24;">${projData.title}</span></div>
+              <div class="project-rank-badge">🏆 ${projData.rank}</div>
+            </div>
+            <div class="project-team-grid"></div>
+          `;
+          projectsContainer.appendChild(projDiv);
+
+          const teamGrid = projDiv.querySelector('.project-team-grid');
+          projData.members.forEach(member => {
+            teamGrid.innerHTML += createCardHTML(member, 0);
+          });
+        });
+      } else {
+        projectsSection.style.display = 'none';
       }
 
       if (filteredStudents.length === 0) {
@@ -616,7 +790,6 @@
         return;
       }
 
-      // 2. تجميع وفرز التخصصات وفقاً لأعلى معدل في كل تخصص
       const deptGroups = {};
       filteredStudents.forEach(student => {
         const dept = student.department ? student.department.trim() : 'عام';
@@ -630,16 +803,11 @@
 
       const sortedDepts = Object.keys(deptGroups).map(dept => {
         const topGpa = deptGroups[dept].length > 0 ? (parseFloat(deptGroups[dept][0].gpa) || 0) : 0;
-        return {
-          name: dept,
-          topGpa: topGpa,
-          students: deptGroups[dept]
-        };
+        return { name: dept, topGpa: topGpa, students: deptGroups[dept] };
       });
 
       sortedDepts.sort((a, b) => b.topGpa - a.topGpa);
 
-      // 3. بناء الواجهة
       sortedDepts.forEach(group => {
         const sectionDiv = document.createElement('div');
         sectionDiv.innerHTML = `
@@ -647,18 +815,69 @@
             <h2 class="section-title">🎓 تخصص: <span>${group.name}</span></h2>
             <div class="dept-top-badge">🏆 أعلى معدل بالقسم: ${group.topGpa > 0 ? group.topGpa : '—'}</div>
           </div>
-          <div class="grid-container" id="grid-${group.name.replace(/\s+/g, '-')}"></div>
+          <div class="grid-container"></div>
         `;
         deptsContainer.appendChild(sectionDiv);
 
         const currentGrid = sectionDiv.querySelector('.grid-container');
-        group.students.forEach(student => {
-          currentGrid.innerHTML += createCardHTML(student, student.isTop);
+        group.students.forEach((student, index) => {
+          const deptRank = index + 1;
+          currentGrid.innerHTML += createCardHTML(student, deptRank);
         });
       });
 
       document.getElementById('totalStudents').innerText = allStudents.length;
       document.getElementById('submittedCount').innerText = submittedCount;
+    }
+
+    function openProfileModal(studentId, deptRank) {
+      const student = allStudents.find(s => s.id === studentId);
+      if (!student) return;
+
+      document.getElementById('modalStudentName').innerText = student.name || 'خريج';
+      document.getElementById('modalStudentDept').innerText = `قسم: ${student.department || 'خريج المعهد'}`;
+      document.getElementById('modalStudentGpa').innerText = student.gpa ? student.gpa : '—';
+      document.getElementById('modalStudentNote').innerText = student.submitted ? `“ ${student.note} ”` : 'لم يتم توثيق الذكرى بعد ⏳';
+
+      const avatarBox = document.getElementById('modalLargeAvatar');
+      if (student.photo) {
+        avatarBox.innerHTML = `<img src="${student.photo}">`;
+      } else {
+        avatarBox.innerHTML = `<span style="font-size:4rem;">🎓</span>`;
+      }
+
+      const rankWrap = document.getElementById('modalRankWrap');
+      let rankText = [];
+      if (student.isTop) rankText.push('👑 من أوائل المعهد');
+      if (deptRank > 0) rankText.push(`🏅 المركز ${deptRank} على القسم`);
+      if (rankText.length > 0) {
+        rankWrap.style.display = 'flex';
+        document.getElementById('modalStudentRank').innerText = rankText.join(' | ');
+      } else {
+        rankWrap.style.display = 'none';
+      }
+
+      const honorsWrap = document.getElementById('modalHonorsWrap');
+      if (student.honors && student.honors.trim() !== '') {
+        honorsWrap.style.display = 'flex';
+        document.getElementById('modalStudentHonors').innerText = student.honors;
+      } else {
+        honorsWrap.style.display = 'none';
+      }
+
+      const projWrap = document.getElementById('modalProjWrap');
+      if (student.projectName && student.projectName.trim() !== '') {
+        projWrap.style.display = 'flex';
+        document.getElementById('modalStudentProject').innerText = `${student.projectName} (${student.projectRank || 'متميز'})`;
+      } else {
+        projWrap.style.display = 'none';
+      }
+
+      document.getElementById('profileModal').style.display = 'flex';
+    }
+
+    function closeProfileModal() {
+      document.getElementById('profileModal').style.display = 'none';
     }
 
     function openStudentModal() {
@@ -678,7 +897,7 @@
       const inputCode = document.getElementById('verifyCode').value.trim().toUpperCase();
       if (!inputCode) return alert('يرجى إدخال الكود أولاً.');
 
-      const student = allStudents.find(s => String(s.code).toUpperCase() === inputCode);
+      const student = allStudents.find(s => String(s.code).trim().toUpperCase() === inputCode);
       if (!student) return alert('❌ الكود غير مسجل في قائمة الخريجين المعتمدين!');
 
       if (student.submitted) {
