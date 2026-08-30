@@ -55,7 +55,7 @@
       pointer-events: none;
     }
 
-    .container { width: 100%; max-width: 1100px; position: relative; z-index: 1; }
+    .container { width: 100%; max-width: 1200px; position: relative; z-index: 1; }
 
     #loginScreen {
       background: var(--card-bg);
@@ -86,7 +86,7 @@
       color: #ffffff;
       font-size: 1rem;
       outline: none;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
       transition: 0.2s;
     }
 
@@ -114,11 +114,6 @@
       color: #0f172a;
       box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
       width: 100%;
-    }
-
-    .btn-gold:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(217, 119, 6, 0.5);
     }
 
     #adminDashboard {
@@ -183,10 +178,7 @@
       padding: 14px;
     }
 
-    .btn-danger-all:hover {
-      background: var(--danger);
-      color: white;
-    }
+    .btn-danger-all:hover { background: var(--danger); color: white; }
 
     .excel-box {
       display: flex;
@@ -209,7 +201,7 @@
       margin-bottom: 25px;
     }
 
-    .form-row { display: grid; grid-template-columns: 1.2fr 2fr 1.5fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1.8fr 1.3fr 0.8fr 1.4fr 1.2fr; gap: 10px; margin-bottom: 10px; }
 
     .checkbox-wrap {
       display: flex;
@@ -221,7 +213,6 @@
       font-size: 0.95rem;
     }
 
-    /* شريط البحث في لوحة الأدمن */
     .table-search-bar {
       display: flex;
       align-items: center;
@@ -241,12 +232,10 @@
       outline: none;
     }
 
-    .table-search-input:focus {
-      border-color: #fbbf24;
-    }
+    .table-search-input:focus { border-color: #fbbf24; }
 
     .table-container {
-      max-height: 480px;
+      max-height: 520px;
       overflow-y: auto;
       border: 1px solid var(--border);
       border-radius: 16px;
@@ -256,18 +245,6 @@
     table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
     th, td { padding: 12px 14px; border-bottom: 1px solid var(--border); text-align: right; vertical-align: middle; }
     th { background: rgba(15, 23, 42, 0.9); color: #fbbf24; font-weight: 800; }
-
-    .top-badge {
-      background: var(--gold-gradient);
-      color: #0f172a;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-weight: 900;
-      font-size: 0.75rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
 
     .btn-action {
       padding: 5px 10px;
@@ -317,7 +294,7 @@
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 24px;
       width: 100%;
-      max-width: 500px;
+      max-width: 520px;
       padding: 28px;
       box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
       color: #ffffff;
@@ -352,7 +329,7 @@
     <div id="adminDashboard">
       <div class="top-bar">
         <div>
-          <h2>لوحة إدارة <span>الخريجين والأوائل والداتا شو</span> 🎓</h2>
+          <h2>لوحة إدارة <span>الخريجين والمشاريع والداتا شو</span> 🎓</h2>
         </div>
         <div class="top-bar-links">
           <a href="index.html" target="_blank">🌐 عرض اللوحة العامة</a>
@@ -363,6 +340,241 @@
       <div class="action-toolbar">
         <button class="btn btn-slideshow" id="exportPptxBtn" onclick="generatePowerPoint()">
           🎬 تحميل عرض الداتا شو للحفل (PowerPoint .pptx)
+        </button>
+        <button class="btn btn-danger-all" onclick="deleteAllStudents()">
+          🗑️ مسح بيانات كل الطلاب
+        </button>
+      </div>
+
+      <!-- استيراد Excel -->
+      <div class="excel-box">
+        <div>
+          <strong style="color: #34d399; font-size:1.05rem;">📊 استيراد قائمة الطلاب من ملف Excel:</strong>
+          <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 3px;">
+            الأعمدة المدعومة: <strong>الكود</strong> | <strong>الاسم</strong> | <strong>المعدل</strong> | <strong>التخصص</strong> | <strong>المشروع</strong> | <strong>ترتيب المشروع</strong> | <strong>التميز</strong>
+          </p>
+        </div>
+        <button class="btn btn-excel" onclick="document.getElementById('excelFileInput').click()">
+          📁 رفع ملف إكسيل
+        </button>
+        <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleExcelUpload(event)">
+      </div>
+
+      <!-- إضافة طالب يدوي شامل التميزات والمشاريع -->
+      <div class="form-card">
+        <h4 style="margin-bottom: 12px; color: #fbbf24;">➕ إضافة خريج يدوي:</h4>
+        <div class="form-row">
+          <input type="text" id="newCode" class="input-field" placeholder="الكود" style="margin-bottom:0; text-transform:uppercase;">
+          <input type="text" id="newName" class="input-field" placeholder="اسم الطالب رباعي" style="margin-bottom:0;">
+          <input type="text" id="newDept" class="input-field" placeholder="التخصص / القسم" style="margin-bottom:0;">
+          <input type="number" step="0.01" id="newGpa" class="input-field" placeholder="المعدل" style="margin-bottom:0;">
+          <input type="text" id="newProj" class="input-field" placeholder="اسم المشروع (اختياري)" style="margin-bottom:0;">
+          <input type="text" id="newHonors" class="input-field" placeholder="تميز/وسام (اختياري)" style="margin-bottom:0;">
+        </div>
+        <div class="checkbox-wrap">
+          <label style="cursor:pointer; display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="newIsTop" style="width:18px; height:18px;">
+            👑 تعيين هذا الطالب من "أوائل المعهد" (لوحة الشرف)
+          </label>
+        </div>
+        <button class="btn btn-gold" style="margin-top:12px;" id="addBtn" onclick="addStudent()">حفظ الطالب في السحابة 💾</button>
+      </div>
+
+      <div class="table-search-bar">
+        <input type="text" id="adminSearchInput" class="table-search-input" placeholder="🔍 ابحث في الجدول بالكود أو الاسم أو التخصص أو المشروع..." oninput="renderAdminTable()">
+        <span style="font-size:0.9rem; color:#fbbf24; font-weight:bold;" id="tableCounter">0 طالب</span>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>الكود</th>
+              <th>الاسم</th>
+              <th>التخصص</th>
+              <th>المعدل</th>
+              <th>مشروع التخرج</th>
+              <th>التميز</th>
+              <th>التصنيف</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="studentsTableBody">
+            <tr><td colspan="8" style="text-align:center; padding: 25px; color:#94a3b8;">جاري جلب البيانات السحابية... ✨</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة تعديل بيانات الخريج -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>✏️ تعديل بيانات الخريج</h3>
+        <button class="close-btn" onclick="closeEditModal()">&times;</button>
+      </div>
+      <input type="hidden" id="editDocId">
+      
+      <div style="margin-bottom:10px;">
+        <label style="font-size:0.85rem; color:#94a3b8;">الكود (فريد):</label>
+        <input type="text" id="editCode" class="input-field" disabled style="background:rgba(15,23,42,0.5); color:#fbbf24; font-weight:bold;">
+      </div>
+      
+      <div style="margin-bottom:10px;">
+        <label style="font-size:0.85rem; color:#cbd5e1;">اسم الطالب:</label>
+        <input type="text" id="editName" class="input-field">
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <label style="font-size:0.85rem; color:#cbd5e1;">التخصص / القسم:</label>
+        <input type="text" id="editDept" class="input-field">
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <label style="font-size:0.85rem; color:#cbd5e1;">المعدل التراكمي (GPA):</label>
+        <input type="number" step="0.01" id="editGpa" class="input-field">
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
+        <div>
+          <label style="font-size:0.85rem; color:#cbd5e1;">اسم مشروع التخرج:</label>
+          <input type="text" id="editProjName" class="input-field" placeholder="مثال: نظام ذكي">
+        </div>
+        <div>
+          <label style="font-size:0.85rem; color:#cbd5e1;">ترتيب المشروع:</label>
+          <input type="text" id="editProjRank" class="input-field" placeholder="مثال: الأول على القسم">
+        </div>
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <label style="font-size:0.85rem; color:#cbd5e1;">أوسمة وتميزات خاصة:</label>
+        <input type="text" id="editHonors" class="input-field" placeholder="مثال: الأول على الدفعة / طالب مثالي">
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <label style="font-size:0.85rem; color:#cbd5e1;">الكلمة التذكارية:</label>
+        <textarea id="editNote" class="input-field" rows="2" style="resize:vertical;"></textarea>
+      </div>
+
+      <div class="checkbox-wrap" style="margin-bottom:15px;">
+        <label style="cursor:pointer; display:flex; align-items:center; gap:8px;">
+          <input type="checkbox" id="editIsTop" style="width:18px; height:18px;">
+          👑 من أوائل المعهد
+        </label>
+      </div>
+
+      <button class="btn btn-gold" id="saveEditBtn" onclick="saveStudentEdit()">حفظ التعديلات 💾</button>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCv5lNRVRD4kqJLA8lmez7eonzVDkuKx6A",
+      authDomain: "grad-memories.firebaseapp.com",
+      projectId: "grad-memories",
+      storageBucket: "grad-memories.firebasestorage.app",
+      messagingSenderId: "814899044477",
+      appId: "1:814899044477:web:89ed1ba54afeb3e17dd114",
+      measurementId: "G-W27KFYHQF2"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let studentsList = [];
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('adminDashboard').style.display = 'block';
+        listenToStudents();
+      } else {
+        document.getElementById('adminDashboard').style.display = 'none';
+        document.getElementById('loginScreen').style.display = 'block';
+      }
+    });
+
+    async function loginAdmin() {
+      const email = document.getElementById('adminEmailInput').value.trim();
+      const password = document.getElementById('adminPasswordInput').value;
+      const loginBtn = document.getElementById('loginBtn');
+
+      if (!email || !password) return alert('يرجى إدخال البريد الإلكتروني وكلمة المرور.');
+
+      loginBtn.disabled = true;
+      loginBtn.innerText = 'جاري التحقق... ⏳';
+
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+      } catch (err) {
+        alert('❌ فشل تسجيل الدخول: ' + err.message);
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.innerText = 'دخول للوحة التحكم 🚀';
+      }
+    }
+
+    async function logoutAdmin() {
+      await auth.signOut();
+    }
+
+    function listenToStudents() {
+      db.collection("students").onSnapshot((snapshot) => {
+        studentsList = [];
+        snapshot.forEach(doc => studentsList.push({ id: doc.id, ...doc.data() }));
+
+        studentsList.sort((a, b) => (parseFloat(b.gpa) || 0) - (parseFloat(a.gpa) || 0));
+        renderAdminTable();
+      });
+    }
+
+    function renderAdminTable() {
+      const query = (document.getElementById('adminSearchInput')?.value || '').trim().toLowerCase();
+      const tbody = document.getElementById('studentsTableBody');
+      const counter = document.getElementById('tableCounter');
+      tbody.innerHTML = '';
+
+      const filtered = studentsList.filter(s => {
+        const codeMatch = String(s.code || '').toLowerCase().includes(query);
+        const nameMatch = String(s.name || '').toLowerCase().includes(query);
+        const deptMatch = String(s.department || '').toLowerCase().includes(query);
+        const projMatch = String(s.projectName || '').toLowerCase().includes(query);
+        return codeMatch || nameMatch || deptMatch || projMatch;
+      });
+
+      if (counter) counter.innerText = `${filtered.length} من إجمالي ${studentsList.length} طالب`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 25px; color:#94a3b8;">لم يتم العثور على أي نتائج تطابق البحث.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(student => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong style="color:#fbbf24;">${student.code}</strong></td>
+          <td style="font-weight:700;">${student.name}</td>
+          <td>${student.department || '—'}</td>
+          <td><strong style="color:#34d399;">${student.gpa || '—'}</strong></td>
+          <td style="color:#93c5fd;">${student.projectName ? `${student.projectName} (${student.projectRank || 'متميز'})` : '—'}</td>
+          <td style="color:#c084fc;">${student.honors || '—'}</td>
+          <td>${student.isTop ? '<span style="color:#fbbf24; font-weight:bold;">👑 أوائل</span>' : '<span style="color:#64748b;">عادي</span>'}</td>
+          <td>
+            <button class="btn-action btn-edit" onclick="openEditModal('${student.id}')">✏️ تعديل</button>
+            <button class="btn-action btn-toggle-top" onclick="toggleTopStatus('${student.id}', ${!student.isTop})">
+              ${student.isTop ? 'إلغاء' : '👑 أوائل'}
+            </button>
+            <button class="btn-action btn-delete" onclick="deleteStudent('${student.id}', '${student.name}')">حذف</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function addStudent() {
+      const code = document.getElementById('newCode').valueل (PowerPoint .pptx)
         </button>
         <button class="btn btn-danger-all" onclick="deleteAllStudents()">
           🗑️ مسح بيانات كل الطلاب
