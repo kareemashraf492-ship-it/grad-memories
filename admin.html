@@ -13,7 +13,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   
-  <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
   <style>
@@ -55,7 +55,7 @@
       pointer-events: none;
     }
 
-    .container { width: 100%; max-width: 1100px; position: relative; z-index: 1; }
+    .container { width: 100%; max-width: 1200px; position: relative; z-index: 1; }
 
     #loginScreen {
       background: var(--card-bg);
@@ -86,7 +86,7 @@
       color: #ffffff;
       font-size: 1rem;
       outline: none;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
       transition: 0.2s;
     }
 
@@ -114,11 +114,6 @@
       color: #0f172a;
       box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
       width: 100%;
-    }
-
-    .btn-gold:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(217, 119, 6, 0.5);
     }
 
     #adminDashboard {
@@ -183,10 +178,7 @@
       padding: 14px;
     }
 
-    .btn-danger-all:hover {
-      background: var(--danger);
-      color: white;
-    }
+    .btn-danger-all:hover { background: var(--danger); color: white; }
 
     .excel-box {
       display: flex;
@@ -209,7 +201,7 @@
       margin-bottom: 25px;
     }
 
-    .form-row { display: grid; grid-template-columns: 1.2fr 2fr 1.5fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1.8fr 1.3fr 0.8fr 1.4fr 1.2fr; gap: 10px; margin-bottom: 10px; }
 
     .checkbox-wrap {
       display: flex;
@@ -221,7 +213,6 @@
       font-size: 0.95rem;
     }
 
-    /* شريط البحث في لوحة الأدمن */
     .table-search-bar {
       display: flex;
       align-items: center;
@@ -241,12 +232,10 @@
       outline: none;
     }
 
-    .table-search-input:focus {
-      border-color: #fbbf24;
-    }
+    .table-search-input:focus { border-color: #fbbf24; }
 
     .table-container {
-      max-height: 480px;
+      max-height: 520px;
       overflow-y: auto;
       border: 1px solid var(--border);
       border-radius: 16px;
@@ -256,18 +245,6 @@
     table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
     th, td { padding: 12px 14px; border-bottom: 1px solid var(--border); text-align: right; vertical-align: middle; }
     th { background: rgba(15, 23, 42, 0.9); color: #fbbf24; font-weight: 800; }
-
-    .top-badge {
-      background: var(--gold-gradient);
-      color: #0f172a;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-weight: 900;
-      font-size: 0.75rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
 
     .btn-action {
       padding: 5px 10px;
@@ -317,7 +294,7 @@
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 24px;
       width: 100%;
-      max-width: 500px;
+      max-width: 520px;
       padding: 28px;
       box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
       color: #ffffff;
@@ -352,7 +329,7 @@
     <div id="adminDashboard">
       <div class="top-bar">
         <div>
-          <h2>لوحة إدارة <span>الخريجين والأوائل والداتا شو</span> 🎓</h2>
+          <h2>لوحة إدارة <span>الخريجين والمشاريع والداتا شو</span> 🎓</h2>
         </div>
         <div class="top-bar-links">
           <a href="index.html" target="_blank">🌐 عرض اللوحة العامة</a>
@@ -373,7 +350,7 @@
         <div>
           <strong style="color: #34d399; font-size:1.05rem;">📊 استيراد قائمة الطلاب من ملف Excel:</strong>
           <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 3px;">
-            الأعمدة المدعومة: <strong>الكود</strong> | <strong>الاسم</strong> | <strong>المعدل (GPA)</strong> | <strong>التخصص / القسم</strong> (يتم منع تكرار الأكواد تلقائياً).
+            الأعمدة المدعومة: <strong>الكود</strong> | <strong>الاسم</strong> | <strong>المعدل</strong> | <strong>التخصص</strong> | <strong>المشروع</strong> | <strong>ترتيب المشروع</strong> | <strong>التميز</strong>
           </p>
         </div>
         <button class="btn btn-excel" onclick="document.getElementById('excelFileInput').click()">
@@ -383,12 +360,14 @@
       </div>
 
       <div class="form-card">
-        <h4 style="margin-bottom: 12px; color: #fbbf24;">➕ إضافة خريج يدوي (كود غير مكرر):</h4>
+        <h4 style="margin-bottom: 12px; color: #fbbf24;">➕ إضافة خريج يدوي:</h4>
         <div class="form-row">
-          <input type="text" id="newCode" class="input-field" placeholder="الكود (فريد)" style="margin-bottom:0; text-transform: uppercase;">
+          <input type="text" id="newCode" class="input-field" placeholder="الكود" style="margin-bottom:0; text-transform:uppercase;">
           <input type="text" id="newName" class="input-field" placeholder="اسم الطالب رباعي" style="margin-bottom:0;">
           <input type="text" id="newDept" class="input-field" placeholder="التخصص / القسم" style="margin-bottom:0;">
-          <input type="number" step="0.01" id="newGpa" class="input-field" placeholder="المعدل (GPA)" style="margin-bottom:0;">
+          <input type="number" step="0.01" id="newGpa" class="input-field" placeholder="المعدل" style="margin-bottom:0;">
+          <input type="text" id="newProj" class="input-field" placeholder="اسم المشروع (اختياري)" style="margin-bottom:0;">
+          <input type="text" id="newHonors" class="input-field" placeholder="تميز/وسام (اختياري)" style="margin-bottom:0;">
         </div>
         <div class="checkbox-wrap">
           <label style="cursor:pointer; display:flex; align-items:center; gap:8px;">
@@ -399,9 +378,8 @@
         <button class="btn btn-gold" style="margin-top:12px;" id="addBtn" onclick="addStudent()">حفظ الطالب في السحابة 💾</button>
       </div>
 
-      <!-- شريط البحث وإحصائية الجدول -->
       <div class="table-search-bar">
-        <input type="text" id="adminSearchInput" class="table-search-input" placeholder="🔍 ابحث في الجدول بالكود أو الاسم أو التخصص..." oninput="renderAdminTable()">
+        <input type="text" id="adminSearchInput" class="table-search-input" placeholder="🔍 ابحث في الجدول بالكود أو الاسم أو التخصص أو المشروع..." oninput="renderAdminTable()">
         <span style="font-size:0.9rem; color:#fbbf24; font-weight:bold;" id="tableCounter">0 طالب</span>
       </div>
 
@@ -412,21 +390,21 @@
               <th>الكود</th>
               <th>الاسم</th>
               <th>التخصص</th>
-              <th>المعدل (GPA)</th>
+              <th>المعدل</th>
+              <th>مشروع التخرج</th>
+              <th>التميز</th>
               <th>التصنيف</th>
-              <th>الذكرى</th>
               <th>إجراءات</th>
             </tr>
           </thead>
           <tbody id="studentsTableBody">
-            <tr><td colspan="7" style="text-align:center; padding: 25px; color:#94a3b8;">جاري جلب البيانات السحابية... ✨</td></tr>
+            <tr><td colspan="8" style="text-align:center; padding: 25px; color:#94a3b8;">جاري جلب البيانات السحابية... ✨</td></tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- نافذة تعديل بيانات الطالب -->
   <div class="modal-overlay" id="editModal">
     <div class="modal-box">
       <div class="modal-header">
@@ -435,27 +413,43 @@
       </div>
       <input type="hidden" id="editDocId">
       
-      <div style="margin-bottom:12px;">
-        <label style="font-size:0.85rem; color:#94a3b8;">الكود (غير قابل للتعديل لمنع التكرار):</label>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:0.85rem; color:#94a3b8;">الكود (فريد):</label>
         <input type="text" id="editCode" class="input-field" disabled style="background:rgba(15,23,42,0.5); color:#fbbf24; font-weight:bold;">
       </div>
       
-      <div style="margin-bottom:12px;">
+      <div style="margin-bottom:10px;">
         <label style="font-size:0.85rem; color:#cbd5e1;">اسم الطالب:</label>
         <input type="text" id="editName" class="input-field">
       </div>
 
-      <div style="margin-bottom:12px;">
+      <div style="margin-bottom:10px;">
         <label style="font-size:0.85rem; color:#cbd5e1;">التخصص / القسم:</label>
         <input type="text" id="editDept" class="input-field">
       </div>
 
-      <div style="margin-bottom:12px;">
+      <div style="margin-bottom:10px;">
         <label style="font-size:0.85rem; color:#cbd5e1;">المعدل التراكمي (GPA):</label>
         <input type="number" step="0.01" id="editGpa" class="input-field">
       </div>
 
-      <div style="margin-bottom:12px;">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
+        <div>
+          <label style="font-size:0.85rem; color:#cbd5e1;">اسم مشروع التخرج:</label>
+          <input type="text" id="editProjName" class="input-field" placeholder="مثال: نظام ذكي">
+        </div>
+        <div>
+          <label style="font-size:0.85rem; color:#cbd5e1;">ترتيب المشروع:</label>
+          <input type="text" id="editProjRank" class="input-field" placeholder="مثال: الأول على القسم">
+        </div>
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <label style="font-size:0.85rem; color:#cbd5e1;">أوسمة وتميزات خاصة:</label>
+        <input type="text" id="editHonors" class="input-field" placeholder="مثال: الأول على الدفعة / طالب مثالي">
+      </div>
+
+      <div style="margin-bottom:10px;">
         <label style="font-size:0.85rem; color:#cbd5e1;">الكلمة التذكارية:</label>
         <textarea id="editNote" class="input-field" rows="2" style="resize:vertical;"></textarea>
       </div>
@@ -482,7 +476,9 @@
       measurementId: "G-W27KFYHQF2"
     };
 
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
     const auth = firebase.auth();
     const db = firebase.firestore();
 
@@ -530,6 +526,8 @@
 
         studentsList.sort((a, b) => (parseFloat(b.gpa) || 0) - (parseFloat(a.gpa) || 0));
         renderAdminTable();
+      }, (err) => {
+        console.error("Firestore Admin Error:", err);
       });
     }
 
@@ -543,13 +541,14 @@
         const codeMatch = String(s.code || '').toLowerCase().includes(query);
         const nameMatch = String(s.name || '').toLowerCase().includes(query);
         const deptMatch = String(s.department || '').toLowerCase().includes(query);
-        return codeMatch || nameMatch || deptMatch;
+        const projMatch = String(s.projectName || '').toLowerCase().includes(query);
+        return codeMatch || nameMatch || deptMatch || projMatch;
       });
 
       if (counter) counter.innerText = `${filtered.length} من إجمالي ${studentsList.length} طالب`;
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 25px; color:#94a3b8;">لم يتم العثور على أي نتائج تطابق البحث.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 25px; color:#94a3b8;">لم يتم العثور على أي نتائج تطابق البحث.</td></tr>`;
         return;
       }
 
@@ -560,12 +559,13 @@
           <td style="font-weight:700;">${student.name}</td>
           <td>${student.department || '—'}</td>
           <td><strong style="color:#34d399;">${student.gpa || '—'}</strong></td>
-          <td>${student.isTop ? '<span class="top-badge">👑 أوائل</span>' : '<span style="color:#64748b;">عادي</span>'}</td>
-          <td style="max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#cbd5e1;">${student.note || '—'}</td>
+          <td style="color:#93c5fd;">${student.projectName ? `${student.projectName} (${student.projectRank || 'متميز'})` : '—'}</td>
+          <td style="color:#c084fc;">${student.honors || '—'}</td>
+          <td>${student.isTop ? '<span style="color:#fbbf24; font-weight:bold;">👑 أوائل</span>' : '<span style="color:#64748b;">عادي</span>'}</td>
           <td>
             <button class="btn-action btn-edit" onclick="openEditModal('${student.id}')">✏️ تعديل</button>
             <button class="btn-action btn-toggle-top" onclick="toggleTopStatus('${student.id}', ${!student.isTop})">
-              ${student.isTop ? 'إلغاء الأوائل' : '👑 أوائل'}
+              ${student.isTop ? 'إلغاء' : '👑 أوائل'}
             </button>
             <button class="btn-action btn-delete" onclick="deleteStudent('${student.id}', '${student.name}')">حذف</button>
           </td>
@@ -579,6 +579,8 @@
       const name = document.getElementById('newName').value.trim();
       const department = document.getElementById('newDept').value.trim();
       const gpa = document.getElementById('newGpa').value.trim();
+      const projectName = document.getElementById('newProj').value.trim();
+      const honors = document.getElementById('newHonors').value.trim();
       const isTop = document.getElementById('newIsTop').checked;
 
       if (!code || !name) return alert('يرجى كتابة الكود والاسم على الأقل.');
@@ -598,6 +600,9 @@
           name: name,
           department: department || 'خريج المعهد',
           gpa: gpa || '',
+          projectName: projectName || '',
+          projectRank: projectName ? 'مشروع متميز' : '',
+          honors: honors || '',
           isTop: isTop,
           photo: '',
           note: '',
@@ -607,6 +612,8 @@
         document.getElementById('newName').value = '';
         document.getElementById('newDept').value = '';
         document.getElementById('newGpa').value = '';
+        document.getElementById('newProj').value = '';
+        document.getElementById('newHonors').value = '';
         document.getElementById('newIsTop').checked = false;
       } catch (err) {
         alert('حدث خطأ أثناء الإضافة: ' + err.message);
@@ -632,8 +639,11 @@
           const headers = rows[0].map(h => String(h).trim().toLowerCase());
           let codeIdx = headers.findIndex(h => h.includes('كود') || h.includes('code') || h.includes('id'));
           let nameIdx = headers.findIndex(h => h.includes('اسم') || h.includes('name'));
-          let gpaIdx = headers.findIndex(h => h.includes('معدل') || h.includes('gpa') || h.includes('تقدير') || h.includes('درجة'));
-          let deptIdx = headers.findIndex(h => h.includes('تخصص') || h.includes('قسم') || h.includes('شعبة') || h.includes('major') || h.includes('dept'));
+          let gpaIdx = headers.findIndex(h => h.includes('معدل') || h.includes('gpa') || h.includes('درجة'));
+          let deptIdx = headers.findIndex(h => h.includes('تخصص') || h.includes('قسم') || h.includes('شعبة'));
+          let projIdx = headers.findIndex(h => h.includes('مشروع') || h.includes('project'));
+          let projRankIdx = headers.findIndex(h => h.includes('ترتيب المشروع') || h.includes('project_rank'));
+          let honorsIdx = headers.findIndex(h => h.includes('تميز') || h.includes('شرف') || h.includes('وسام') || h.includes('honor'));
 
           if (codeIdx === -1) codeIdx = 0;
           if (nameIdx === -1) nameIdx = 1;
@@ -651,6 +661,9 @@
             const name = row[nameIdx] ? String(row[nameIdx]).trim() : '';
             const gpa = (gpaIdx !== -1 && row[gpaIdx]) ? String(row[gpaIdx]).trim() : '';
             const department = (deptIdx !== -1 && row[deptIdx]) ? String(row[deptIdx]).trim() : 'خريج المعهد';
+            const projectName = (projIdx !== -1 && row[projIdx]) ? String(row[projIdx]).trim() : '';
+            const projectRank = (projRankIdx !== -1 && row[projRankIdx]) ? String(row[projRankIdx]).trim() : (projectName ? 'مشروع متميز' : '');
+            const honors = (honorsIdx !== -1 && row[honorsIdx]) ? String(row[honorsIdx]).trim() : '';
 
             if (code && name) {
               const alreadyExistsInDB = studentsList.some(s => String(s.code).trim().toUpperCase() === code);
@@ -664,6 +677,9 @@
                   name: name,
                   department: department,
                   gpa: gpa,
+                  projectName: projectName,
+                  projectRank: projectRank,
+                  honors: honors,
                   isTop: false,
                   photo: '',
                   note: '',
@@ -680,7 +696,7 @@
             await batch.commit();
             alert(`✅ تم استيراد (${addedCount}) طالب بنجاح!\n⚠️ تم تخطي وتجاهل (${duplicateCount}) كود مكرر.`);
           } else {
-            alert(`لم تتم إضافة أي طالب جديد (جميع الأكواد (${duplicateCount}) مسجلة مسبقاً أو مكررة).`);
+            alert(`لم تتم إضافة أي طالب جديد (جميع الأكواد (${duplicateCount}) مسجلة مسبقاً).`);
           }
 
         } catch (err) {
@@ -702,6 +718,9 @@
       document.getElementById('editName').value = student.name;
       document.getElementById('editDept').value = student.department || '';
       document.getElementById('editGpa').value = student.gpa || '';
+      document.getElementById('editProjName').value = student.projectName || '';
+      document.getElementById('editProjRank').value = student.projectRank || '';
+      document.getElementById('editHonors').value = student.honors || '';
       document.getElementById('editNote').value = student.note || '';
       document.getElementById('editIsTop').checked = !!student.isTop;
 
@@ -717,6 +736,9 @@
       const name = document.getElementById('editName').value.trim();
       const department = document.getElementById('editDept').value.trim();
       const gpa = document.getElementById('editGpa').value.trim();
+      const projectName = document.getElementById('editProjName').value.trim();
+      const projectRank = document.getElementById('editProjRank').value.trim();
+      const honors = document.getElementById('editHonors').value.trim();
       const note = document.getElementById('editNote').value.trim();
       const isTop = document.getElementById('editIsTop').checked;
 
@@ -731,6 +753,9 @@
           name: name,
           department: department || 'خريج المعهد',
           gpa: gpa || '',
+          projectName: projectName || '',
+          projectRank: projectRank || '',
+          honors: honors || '',
           note: note,
           isTop: isTop
         });
@@ -745,19 +770,13 @@
     }
 
     async function deleteAllStudents() {
-      if (studentsList.length === 0) {
-        alert('لا توجد بيانات طلاب لمسحها.');
-        return;
-      }
+      if (studentsList.length === 0) return alert('لا توجد بيانات طلاب لمسحها.');
 
-      const confirm1 = confirm(`⚠️ تحذير شديد الخطورة:\nأنت على وشك حذف جميع الطلاب (${studentsList.length} طالب) نهائياً من السحابة بما فيها الصور والذكريات!\n\nهل تريد المتابعة؟`);
+      const confirm1 = confirm(`⚠️ تحذير شديد الخطورة:\nأنت على وشك حذف جميع الطلاب (${studentsList.length} طالب) نهائياً!\nهل تريد المتابعة؟`);
       if (!confirm1) return;
 
       const confirmText = prompt('لتأكيد الحذف الشامل، اكتب كلمة (حذف الكل) في المربع أدناه:');
-      if (confirmText !== 'حذف الكل') {
-        alert('تم إلغاء عملية الحذف.');
-        return;
-      }
+      if (confirmText !== 'حذف الكل') return alert('تم إلغاء عملية الحذف.');
 
       try {
         const batch = db.batch();
@@ -858,7 +877,7 @@
             fontSize: 20, color: 'FBBA24', align: 'center', isRTL: true
           });
 
-          group.students.forEach(student => {
+          group.students.forEach((student, sIndex) => {
             let slide = pptx.addSlide();
             slide.background = { color: '0F172A' };
 
@@ -885,10 +904,15 @@
               });
             }
 
-            if (student.isTop) {
-              slide.addText('👑 من أوائل المعهد', {
+            let rankHonorText = [];
+            if (student.isTop) rankHonorText.push('👑 أوائل المعهد');
+            if (sIndex < 10) rankHonorText.push(`🏅 المركز ${sIndex + 1} على القسم`);
+            if (student.honors) rankHonorText.push(`🏆 ${student.honors}`);
+
+            if (rankHonorText.length > 0) {
+              slide.addText(rankHonorText.join(' | '), {
                 x: 0.6, y: 0.45, w: 5.7, h: 0.4,
-                fontSize: 14, color: 'FBBA24', bold: true, align: 'right', isRTL: true
+                fontSize: 13, color: 'FBBA24', bold: true, align: 'right', isRTL: true
               });
             }
 
@@ -897,10 +921,12 @@
               fontSize: 26, color: 'FFFFFF', bold: true, align: 'right', isRTL: true
             });
 
-            const infoText = `التخصص: ${student.department || 'خريج المعهد'} | المعدل التراكمي: ${student.gpa || '—'}`;
+            let infoText = `التخصص: ${student.department || 'خريج المعهد'} | المعدل: ${student.gpa || '—'}`;
+            if (student.projectName) infoText += ` | مشروع: ${student.projectName}`;
+
             slide.addText(infoText, {
               x: 0.6, y: 1.45, w: 5.7, h: 0.4,
-              fontSize: 14, color: 'D97706', bold: true, align: 'right', isRTL: true
+              fontSize: 13, color: 'D97706', bold: true, align: 'right', isRTL: true
             });
 
             slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
