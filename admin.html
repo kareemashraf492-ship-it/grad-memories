@@ -26,7 +26,6 @@
       --border: rgba(255, 255, 255, 0.12);
       --text: #f8fafc;
       --danger: #ef4444;
-      --danger-hover: #dc2626;
       --success: #10b981;
     }
 
@@ -222,6 +221,30 @@
       font-size: 0.95rem;
     }
 
+    /* شريط البحث في لوحة الأدمن */
+    .table-search-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      gap: 15px;
+    }
+
+    .table-search-input {
+      flex: 1;
+      padding: 10px 16px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: #ffffff;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .table-search-input:focus {
+      border-color: #fbbf24;
+    }
+
     .table-container {
       max-height: 480px;
       overflow-y: auto;
@@ -277,7 +300,6 @@
     }
     .btn-delete:hover { background: var(--danger); color: white; }
 
-    /* نافذة تعديل بيانات الطالب */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -318,7 +340,6 @@
 
   <div class="glow-sphere"></div>
 
-  <!-- شاشة الدخول -->
   <div id="loginScreen">
     <div style="font-size: 3rem; margin-bottom: 15px;">🔐</div>
     <h2>لوحة تحكم <span>المشرف</span></h2>
@@ -327,7 +348,6 @@
     <button class="btn btn-gold" id="loginBtn" onclick="loginAdmin()">دخول للوحة التحكم 🚀</button>
   </div>
 
-  <!-- لوحة التحكم -->
   <div class="container">
     <div id="adminDashboard">
       <div class="top-bar">
@@ -340,7 +360,6 @@
         </div>
       </div>
 
-      <!-- أزرار الإجراءات العليا -->
       <div class="action-toolbar">
         <button class="btn btn-slideshow" id="exportPptxBtn" onclick="generatePowerPoint()">
           🎬 تحميل عرض الداتا شو للحفل (PowerPoint .pptx)
@@ -350,10 +369,235 @@
         </button>
       </div>
 
-      <!-- استيراد Excel مع منع التكرار -->
       <div class="excel-box">
         <div>
           <strong style="color: #34d399; font-size:1.05rem;">📊 استيراد قائمة الطلاب من ملف Excel:</strong>
+          <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 3px;">
+            الأعمدة المدعومة: <strong>الكود</strong> | <strong>الاسم</strong> | <strong>المعدل (GPA)</strong> | <strong>التخصص / القسم</strong> (يتم منع تكرار الأكواد تلقائياً).
+          </p>
+        </div>
+        <button class="btn btn-excel" onclick="document.getElementById('excelFileInput').click()">
+          📁 رفع ملف إكسيل
+        </button>
+        <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleExcelUpload(event)">
+      </div>
+
+      <div class="form-card">
+        <h4 style="margin-bottom: 12px; color: #fbbf24;">➕ إضافة خريج يدوي (كود غير مكرر):</h4>
+        <div class="form-row">
+          <input type="text" id="newCode" class="input-field" placeholder="الكود (فريد)" style="margin-bottom:0; text-transform: uppercase;">
+          <input type="text" id="newName" class="input-field" placeholder="اسم الطالب رباعي" style="margin-bottom:0;">
+          <input type="text" id="newDept" class="input-field" placeholder="التخصص / القسم" style="margin-bottom:0;">
+          <input type="number" step="0.01" id="newGpa" class="input-field" placeholder="المعدل (GPA)" style="margin-bottom:0;">
+        </div>
+        <div class="checkbox-wrap">
+          <label style="cursor:pointer; display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="newIsTop" style="width:18px; height:18px;">
+            👑 تعيين هذا الطالب من "أوائل المعهد" (لوحة الشرف)
+          </label>
+        </div>
+        <button class="btn btn-gold" style="margin-top:12px;" id="addBtn" onclick="addStudent()">حفظ الطالب في السحابة 💾</button>
+      </div>
+
+      <!-- شريط البحث وإحصائية الجدول -->
+      <div class="table-search-bar">
+        <input type="text" id="adminSearchInput" class="table-search-input" placeholder="🔍 ابحث في الجدول بالكود أو الاسم أو التخصص..." oninput="renderAdminTable()">
+        <span style="font-size:0.9rem; color:#fbbf24; font-weight:bold;" id="tableCounter">0 طالب</span>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>الكود</th>
+              <th>الاسم</th>
+              <th>التخصص</th>
+              <th>المعدل (GPA)</th>
+              <th>التصنيف</th>
+              <th>الذكرى</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="studentsTableBody">
+            <tr><td colspan="7" style="text-align:center; padding: 25px; color:#94a3b8;">جاري جلب البيانات السحابية... ✨</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة تعديل بيانات الطالب -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>✏️ تعديل بيانات الخريج</h3>
+        <button class="close-btn" onclick="closeEditModal()">&times;</button>
+      </div>
+      <input type="hidden" id="editDocId">
+      
+      <div style="margin-bottom:12px;">
+        <label style="font-size:0.85rem; color:#94a3b8;">الكود (غير قابل للتعديل لمنع التكرار):</label>
+        <input type="text" id="editCode" class="input-field" disabled style="background:rgba(15,23,42,0.5); color:#fbbf24; font-weight:bold;">
+      </div>
+      
+      <div style="margin-bottom:12px;">
+        <label style="font-size:0.85rem; color:#cbd5e1;">اسم الطالب:</label>
+        <input type="text" id="editName" class="input-field">
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label style="font-size:0.85rem; color:#cbd5e1;">التخصص / القسم:</label>
+        <input type="text" id="editDept" class="input-field">
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label style="font-size:0.85rem; color:#cbd5e1;">المعدل التراكمي (GPA):</label>
+        <input type="number" step="0.01" id="editGpa" class="input-field">
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label style="font-size:0.85rem; color:#cbd5e1;">الكلمة التذكارية:</label>
+        <textarea id="editNote" class="input-field" rows="2" style="resize:vertical;"></textarea>
+      </div>
+
+      <div class="checkbox-wrap" style="margin-bottom:15px;">
+        <label style="cursor:pointer; display:flex; align-items:center; gap:8px;">
+          <input type="checkbox" id="editIsTop" style="width:18px; height:18px;">
+          👑 من أوائل المعهد
+        </label>
+      </div>
+
+      <button class="btn btn-gold" id="saveEditBtn" onclick="saveStudentEdit()">حفظ التعديلات 💾</button>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCv5lNRVRD4kqJLA8lmez7eonzVDkuKx6A",
+      authDomain: "grad-memories.firebaseapp.com",
+      projectId: "grad-memories",
+      storageBucket: "grad-memories.firebasestorage.app",
+      messagingSenderId: "814899044477",
+      appId: "1:814899044477:web:89ed1ba54afeb3e17dd114",
+      measurementId: "G-W27KFYHQF2"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let studentsList = [];
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('adminDashboard').style.display = 'block';
+        listenToStudents();
+      } else {
+        document.getElementById('adminDashboard').style.display = 'none';
+        document.getElementById('loginScreen').style.display = 'block';
+      }
+    });
+
+    async function loginAdmin() {
+      const email = document.getElementById('adminEmailInput').value.trim();
+      const password = document.getElementById('adminPasswordInput').value;
+      const loginBtn = document.getElementById('loginBtn');
+
+      if (!email || !password) return alert('يرجى إدخال البريد الإلكتروني وكلمة المرور.');
+
+      loginBtn.disabled = true;
+      loginBtn.innerText = 'جاري التحقق... ⏳';
+
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+      } catch (err) {
+        alert('❌ فشل تسجيل الدخول: ' + err.message);
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.innerText = 'دخول للوحة التحكم 🚀';
+      }
+    }
+
+    async function logoutAdmin() {
+      await auth.signOut();
+    }
+
+    function listenToStudents() {
+      db.collection("students").onSnapshot((snapshot) => {
+        studentsList = [];
+        snapshot.forEach(doc => studentsList.push({ id: doc.id, ...doc.data() }));
+
+        studentsList.sort((a, b) => (parseFloat(b.gpa) || 0) - (parseFloat(a.gpa) || 0));
+        renderAdminTable();
+      });
+    }
+
+    function renderAdminTable() {
+      const query = (document.getElementById('adminSearchInput')?.value || '').trim().toLowerCase();
+      const tbody = document.getElementById('studentsTableBody');
+      const counter = document.getElementById('tableCounter');
+      tbody.innerHTML = '';
+
+      const filtered = studentsList.filter(s => {
+        const codeMatch = String(s.code || '').toLowerCase().includes(query);
+        const nameMatch = String(s.name || '').toLowerCase().includes(query);
+        const deptMatch = String(s.department || '').toLowerCase().includes(query);
+        return codeMatch || nameMatch || deptMatch;
+      });
+
+      if (counter) counter.innerText = `${filtered.length} من إجمالي ${studentsList.length} طالب`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 25px; color:#94a3b8;">لم يتم العثور على أي نتائج تطابق البحث.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(student => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong style="color:#fbbf24;">${student.code}</strong></td>
+          <td style="font-weight:700;">${student.name}</td>
+          <td>${student.department || '—'}</td>
+          <td><strong style="color:#34d399;">${student.gpa || '—'}</strong></td>
+          <td>${student.isTop ? '<span class="top-badge">👑 أوائل</span>' : '<span style="color:#64748b;">عادي</span>'}</td>
+          <td style="max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#cbd5e1;">${student.note || '—'}</td>
+          <td>
+            <button class="btn-action btn-edit" onclick="openEditModal('${student.id}')">✏️ تعديل</button>
+            <button class="btn-action btn-toggle-top" onclick="toggleTopStatus('${student.id}', ${!student.isTop})">
+              ${student.isTop ? 'إلغاء الأوائل' : '👑 أوائل'}
+            </button>
+            <button class="btn-action btn-delete" onclick="deleteStudent('${student.id}', '${student.name}')">حذف</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function addStudent() {
+      const code = document.getElementById('newCode').value.trim().toUpperCase();
+      const name = document.getElementById('newName').value.trim();
+      const department = document.getElementById('newDept').value.trim();
+      const gpa = document.getElementById('newGpa').value.trim();
+      const isTop = document.getElementById('newIsTop').checked;
+
+      if (!code || !name) return alert('يرجى كتابة الكود والاسم على الأقل.');
+
+      const isDuplicate = studentsList.some(s => String(s.code).trim().toUpperCase() === code);
+      if (isDuplicate) {
+        alert(`❌ خطأ: الكود (${code}) مسجل لطالب آخر بالفعل! لا يمكن تكرار الأكواد.`);
+        return;
+      }
+
+      const addBtn = document.getElementById('addBtn');
+      addBtn.disabled = true;
+
+      try {
+        await db.collection("students").add({
+          code: code,
+          name: name,
+          department: department || 'خريج المعهد',
+    l:</strong>
           <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 3px;">
             الأعمدة المدعومة: <strong>الكود</strong> | <strong>الاسم</strong> | <strong>المعدل (GPA)</strong> | <strong>التخصص / القسم</strong> (يتم منع تكرار الأكواد تلقائياً).
           </p>
