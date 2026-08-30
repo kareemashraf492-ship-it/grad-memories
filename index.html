@@ -3,17 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎓 لوحة ذكريات دفعة التخرج</title>
+  <title>🎓 لوحة ذكريات وتكريم دفعة التخرج</title>
   
-  <!-- خط تجوال الاحترافي -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
   
-  <!-- مكتبة القصاصات الاحتفالية الملونة -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
-  <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
@@ -23,29 +19,23 @@
       --secondary: #d97706;
       --gold-gradient: linear-gradient(135deg, #fbbf24, #d97706);
       --bg-gradient: linear-gradient(180deg, #0f172a 0%, #1e1b4b 50%, #090d16 100%);
-      --card-bg: rgba(30, 41, 59, 0.7);
-      --border: rgba(255, 255, 255, 0.1);
+      --card-bg: rgba(30, 41, 59, 0.75);
+      --border: rgba(255, 255, 255, 0.12);
       --text: #f8fafc;
       --accent: #fbbf24;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Tajawal', sans-serif;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
 
     body {
       background: var(--bg-gradient);
       color: var(--text);
       min-height: 100vh;
-      padding-bottom: 60px;
+      padding-bottom: 70px;
       overflow-x: hidden;
       position: relative;
     }
 
-    /* كرات الإضاءة الاحتفالية في الخلفية */
     .glow-sphere {
       position: fixed;
       width: 450px;
@@ -70,7 +60,6 @@
       pointer-events: none;
     }
 
-    /* الهيدر الاحتفالي */
     header {
       position: relative;
       z-index: 1;
@@ -114,7 +103,6 @@
       margin: 0 auto 25px;
     }
 
-    /* أزرار التحكم الرئيسية */
     .action-bar {
       display: flex;
       justify-content: center;
@@ -159,7 +147,6 @@
       transform: translateY(-2px);
     }
 
-    /* شريط الإحصائيات الزجاجي */
     .stats-container {
       position: relative;
       z-index: 1;
@@ -183,20 +170,52 @@
       box-shadow: 0 8px 25px rgba(0,0,0,0.3);
     }
 
-    .stats-pill strong {
-      color: #fbbf24;
-      font-size: 1.1rem;
+    .stats-pill strong { color: #fbbf24; font-size: 1.1rem; }
+
+    .section-title-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1250px;
+      margin: 35px auto 15px;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    /* شبكة بطاقات الذكريات */
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title span {
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .dept-top-badge {
+      background: rgba(251, 191, 36, 0.15);
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      color: #fbbf24;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
     .grid-container {
       position: relative;
       z-index: 1;
       max-width: 1250px;
-      margin: 0 auto;
+      margin: 0 auto 40px;
       padding: 0 20px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 24px;
     }
 
@@ -221,9 +240,30 @@
       box-shadow: 0 18px 40px rgba(217, 119, 6, 0.25);
     }
 
+    .memory-card.top-rank {
+      border: 2px solid #fbbf24;
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+      box-shadow: 0 12px 35px rgba(251, 191, 36, 0.25);
+    }
+
+    .crown-tag {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--gold-gradient);
+      color: #0f172a;
+      font-size: 0.75rem;
+      font-weight: 900;
+      padding: 4px 10px;
+      border-radius: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
     .memory-card.submitted {
-      border: 2px solid rgba(251, 191, 36, 0.8);
-      background: rgba(30, 41, 59, 0.85);
+      border: 1.5px solid rgba(251, 191, 36, 0.7);
     }
 
     .memory-card.pending {
@@ -231,7 +271,6 @@
       background: rgba(15, 23, 42, 0.5);
     }
 
-    /* صورة الخريج وإطار التخرج الملكي */
     .avatar-wrapper {
       width: 110px;
       height: 110px;
@@ -246,29 +285,29 @@
       box-shadow: 0 6px 20px rgba(217, 119, 6, 0.35);
     }
 
-    .avatar-wrapper img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    .avatar-wrapper img { width: 100%; height: 100%; object-fit: cover; }
 
-    .card-name {
-      font-weight: 800;
-      font-size: 1.15rem;
-      color: #ffffff;
-      margin-bottom: 4px;
-    }
+    .card-name { font-weight: 800; font-size: 1.15rem; color: #ffffff; margin-bottom: 4px; }
 
-    .card-code {
-      font-size: 0.8rem;
+    .card-dept {
+      font-size: 0.85rem;
+      color: #94a3b8;
       font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .card-gpa-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      font-weight: 800;
       color: #fbbf24;
       background: rgba(251, 191, 36, 0.12);
       border: 1px solid rgba(251, 191, 36, 0.3);
-      padding: 3px 12px;
+      padding: 4px 14px;
       border-radius: 20px;
       margin-bottom: 14px;
-      direction: ltr;
     }
 
     .card-note {
@@ -294,7 +333,6 @@
       font-style: normal;
     }
 
-    /* نافذة تسجيل الطالب الزجاجية */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -327,32 +365,11 @@
       padding-bottom: 12px;
     }
 
-    .modal-header h3 {
-      font-size: 1.35rem;
-      font-weight: 800;
-      color: #fbbf24;
-    }
+    .modal-header h3 { font-size: 1.35rem; font-weight: 800; color: #fbbf24; }
+    .close-btn { background: none; border: none; font-size: 1.6rem; cursor: pointer; color: #94a3b8; }
 
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 1.6rem;
-      cursor: pointer;
-      color: #94a3b8;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #cbd5e1;
-    }
-
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; margin-bottom: 6px; font-size: 0.95rem; font-weight: 700; color: #cbd5e1; }
     .form-group input, .form-group textarea {
       width: 100%;
       padding: 12px 14px;
@@ -383,11 +400,7 @@
       background: rgba(15, 23, 42, 0.6);
     }
 
-    .preview-box img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    .preview-box img { width: 100%; height: 100%; object-fit: cover; }
   </style>
 </head>
 <body>
@@ -395,11 +408,10 @@
   <div class="glow-sphere"></div>
   <div class="glow-sphere-2"></div>
 
-  <!-- الهيدر الاحتفالي -->
   <header>
     <div class="cap-badge">🎉 ألف مبروك التخرج</div>
-    <h1>لوحة ذكريات <span>دفعة التخرج</span> 🎓</h1>
-    <p>لحظات وتعب سنين نوثقها هنا لتظل ذكرى خالدة بيننا مهما مر الزمان ✨</p>
+    <h1>لوحة ذكريات وتكريم <span>دفعة التخرج</span> 🎓</h1>
+    <p>لحظات وتعب سنين نوثقها هنا لتظل فخراً وذكرى خالدة بيننا مهما طالت الأيام ✨</p>
 
     <div class="action-bar">
       <button class="btn btn-gold" onclick="openStudentModal()">
@@ -411,7 +423,6 @@
     </div>
   </header>
 
-  <!-- عداد الإحصائيات -->
   <div class="stats-container">
     <div class="stats-pill">
       <div>إجمالي الخريجين: <strong id="totalStudents">0</strong></div>
@@ -420,10 +431,18 @@
     </div>
   </div>
 
-  <!-- شبكة البطاقات -->
-  <div class="grid-container" id="cardsGrid">
-    <p style="grid-column: 1/-1; text-align:center; color:#94a3b8; font-size:1.1rem; padding: 40px 0;">
-      جاري تحميل ذكريات الدفعة السحابية... ✨
+  <!-- لوحة شرف أوائل المعهد -->
+  <div id="topStudentsSection" style="display: none;">
+    <div class="section-title-wrap">
+      <h2 class="section-title">👑 لوحة شرف <span>أوائل المعهد</span></h2>
+    </div>
+    <div class="grid-container" id="topCardsGrid"></div>
+  </div>
+
+  <!-- حاوية أقسام التخصصات المرتبة -->
+  <div id="departmentsContainer">
+    <p style="text-align:center; color:#94a3b8; font-size:1.1rem; padding: 40px 0;">
+      جاري تحميل وتنسيق ذكريات الدفعة حسب التخصصات والمعدلات... ✨
     </p>
   </div>
 
@@ -435,18 +454,16 @@
         <button class="close-btn" onclick="closeStudentModal()">&times;</button>
       </div>
 
-      <!-- الخطوة 1: كود الطالب -->
       <div id="codeStep">
         <div class="form-group">
           <label>أدخل الكود التعريفي الخاص بك:</label>
-          <input type="text" id="verifyCode" placeholder="مثال: 2020523" style="text-transform: uppercase;">
+          <input type="text" id="verifyCode" placeholder="أدخل كود الطالب" style="text-transform: uppercase;">
         </div>
         <button class="btn btn-gold" style="width:100%;" onclick="verifyStudentCode()">
           تحقق من الكود 🔍
         </button>
       </div>
 
-      <!-- الخطوة 2: رفع الصورة والذكرى -->
       <div id="dataStep" style="display: none;">
         <div class="form-group">
           <label>اسم الخريج المعتمد:</label>
@@ -492,9 +509,7 @@
     let currentDocId = null;
     let tempPhotoBase64 = '';
 
-    window.addEventListener('load', () => {
-      launchConfetti();
-    });
+    window.addEventListener('load', () => launchConfetti());
 
     function launchConfetti() {
       confetti({
@@ -511,28 +526,91 @@
       renderBoard();
     });
 
-    function renderBoard() {
-      const grid = document.getElementById('cardsGrid');
-      grid.innerHTML = '';
-      let submittedCount = 0;
-
-      if (allStudents.length === 0) {
-        grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:#94a3b8; margin:40px 0;">لم يتم إضافة طلاب حتى الآن من قبل المشرف.</p>`;
-      }
-
-      allStudents.forEach(student => {
-        if (student.submitted) submittedCount++;
-        const card = document.createElement('div');
-        card.className = `memory-card ${student.submitted ? 'submitted' : 'pending'}`;
-        card.innerHTML = `
+    function createCardHTML(student, isTop = false) {
+      return `
+        <div class="memory-card ${isTop ? 'top-rank' : ''} ${student.submitted ? 'submitted' : 'pending'}">
+          ${isTop ? '<div class="crown-tag">👑 من أوائل المعهد</div>' : ''}
           <div class="avatar-wrapper">
             ${student.photo ? `<img src="${student.photo}">` : `<span style="font-size:2.8rem;">🎓</span>`}
           </div>
           <div class="card-name">${student.name}</div>
-          <div class="card-code">${student.code}</div>
+          <div class="card-dept">${student.department || 'خريج المعهد'}</div>
+          <div class="card-gpa-badge">⭐ المعدل التراكمي: ${student.gpa ? student.gpa : '—'}</div>
           <div class="card-note">${student.submitted ? `“ ${student.note} ”` : 'في انتظار توثيق الذكرى... ⏳'}</div>
+        </div>
+      `;
+    }
+
+    function renderBoard() {
+      const topGrid = document.getElementById('topCardsGrid');
+      const topSection = document.getElementById('topStudentsSection');
+      const deptsContainer = document.getElementById('departmentsContainer');
+
+      topGrid.innerHTML = '';
+      deptsContainer.innerHTML = '';
+
+      let submittedCount = 0;
+      allStudents.forEach(s => { if (s.submitted) submittedCount++; });
+
+      // 1. عرض أوائل المعهد بالأعلى
+      const topStudents = allStudents.filter(s => s.isTop);
+      topStudents.sort((a, b) => (parseFloat(b.gpa) || 0) - (parseFloat(a.gpa) || 0));
+
+      if (topStudents.length > 0) {
+        topSection.style.display = 'block';
+        topStudents.forEach(student => {
+          topGrid.innerHTML += createCardHTML(student, true);
+        });
+      } else {
+        topSection.style.display = 'none';
+      }
+
+      if (allStudents.length === 0) {
+        deptsContainer.innerHTML = `<p style="text-align:center; color:#94a3b8; margin:40px 0;">لم يتم إضافة طلاب حتى الآن من قبل المشرف.</p>`;
+        return;
+      }
+
+      // 2. منطق الترتيب: تجميع حسب التخصص + فرز التخصصات وفقاً لأعلى معدل في كل تخصص
+      const deptGroups = {};
+      allStudents.forEach(student => {
+        const dept = student.department ? student.department.trim() : 'عام';
+        if (!deptGroups[dept]) deptGroups[dept] = [];
+        deptGroups[dept].push(student);
+      });
+
+      // ترتيب الطلاب داخل كل قسم تنازلياً حسب الـ GPA
+      Object.keys(deptGroups).forEach(dept => {
+        deptGroups[dept].sort((a, b) => (parseFloat(b.gpa) || 0) - (parseFloat(a.gpa) || 0));
+      });
+
+      // حساب أعلى GPA لكل تخصص وفرز التخصصات تنازلياً
+      const sortedDepts = Object.keys(deptGroups).map(dept => {
+        const topGpa = deptGroups[dept].length > 0 ? (parseFloat(deptGroups[dept][0].gpa) || 0) : 0;
+        return {
+          name: dept,
+          topGpa: topGpa,
+          students: deptGroups[dept]
+        };
+      });
+
+      sortedDepts.sort((a, b) => b.topGpa - a.topGpa);
+
+      // 3. بناء واجهة كل تخصص بالترتيب الجديد
+      sortedDepts.forEach(group => {
+        const sectionDiv = document.createElement('div');
+        sectionDiv.innerHTML = `
+          <div class="section-title-wrap">
+            <h2 class="section-title">🎓 تخصص: <span>${group.name}</span></h2>
+            <div class="dept-top-badge">🏆 أعلى معدل بالقسم: ${group.topGpa > 0 ? group.topGpa : '—'}</div>
+          </div>
+          <div class="grid-container" id="grid-${group.name.replace(/\s+/g, '-')}"></div>
         `;
-        grid.appendChild(card);
+        deptsContainer.appendChild(sectionDiv);
+
+        const currentGrid = sectionDiv.querySelector('.grid-container');
+        group.students.forEach(student => {
+          currentGrid.innerHTML += createCardHTML(student, student.isTop);
+        });
       });
 
       document.getElementById('totalStudents').innerText = allStudents.length;
