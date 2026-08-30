@@ -9,12 +9,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 
-  <!-- مكتبات Firebase الأساسية -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   
-  <!-- مكتبات الباوربوينت والإكسيل -->
   <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
@@ -57,9 +55,8 @@
       pointer-events: none;
     }
 
-    .container { width: 100%; max-width: 950px; position: relative; z-index: 1; }
+    .container { width: 100%; max-width: 1050px; position: relative; z-index: 1; }
 
-    /* صندوق تسجيل الدخول الزجاجي */
     #loginScreen {
       background: var(--card-bg);
       backdrop-filter: blur(12px);
@@ -173,11 +170,6 @@
       box-shadow: 0 4px 20px rgba(217, 119, 6, 0.3);
     }
 
-    .btn-slideshow:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(217, 119, 6, 0.5);
-    }
-
     .excel-box {
       display: flex;
       justify-content: space-between;
@@ -190,7 +182,6 @@
     }
 
     .btn-excel { background: var(--success); color: white; padding: 10px 18px; }
-    .btn-excel:hover { background: #059669; }
 
     .form-card {
       background: rgba(15, 23, 42, 0.6);
@@ -200,50 +191,68 @@
       margin-bottom: 25px;
     }
 
-    .form-row { display: flex; gap: 12px; }
+    .form-row { display: grid; grid-template-columns: 1.2fr 2fr 1.5fr 1fr; gap: 10px; margin-bottom: 10px; }
+
+    .checkbox-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 5px;
+      color: #fbbf24;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
 
     .table-container {
-      max-height: 400px;
+      max-height: 450px;
       overflow-y: auto;
       border: 1px solid var(--border);
       border-radius: 16px;
       background: rgba(15, 23, 42, 0.4);
     }
 
-    table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
-    th, td { padding: 14px 16px; border-bottom: 1px solid var(--border); text-align: right; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--border); text-align: right; }
     th { background: rgba(15, 23, 42, 0.9); color: #fbbf24; font-weight: 800; }
 
-    .status-tag { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
-    .status-tag.done {
-      background: rgba(16, 185, 129, 0.2);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.4);
+    .top-badge {
+      background: var(--gold-gradient);
+      color: #0f172a;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 900;
+      font-size: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
-    .status-tag.waiting {
-      background: rgba(245, 158, 11, 0.2);
+
+    .btn-toggle-top {
+      background: rgba(251, 191, 36, 0.15);
+      border: 1px solid rgba(251, 191, 36, 0.4);
       color: #fbbf24;
-      border: 1px solid rgba(245, 158, 11, 0.4);
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      margin-left: 4px;
     }
 
     .btn-delete {
       background: rgba(239, 68, 68, 0.2);
       color: #f87171;
       border: 1px solid rgba(239, 68, 68, 0.4);
-      padding: 6px 12px;
-      border-radius: 8px;
+      padding: 4px 8px;
+      border-radius: 6px;
       cursor: pointer;
       font-weight: 700;
-      transition: 0.2s;
     }
-    .btn-delete:hover { background: var(--danger); color: white; }
   </style>
 </head>
 <body>
 
   <div class="glow-sphere"></div>
 
-  <!-- شاشة الدخول الآمنة بالإيميل والباسورد -->
   <div id="loginScreen">
     <div style="font-size: 3rem; margin-bottom: 15px;">🔐</div>
     <h2>لوحة تحكم <span>المشرف</span></h2>
@@ -252,12 +261,11 @@
     <button class="btn btn-gold" id="loginBtn" onclick="loginAdmin()">دخول للوحة التحكم 🚀</button>
   </div>
 
-  <!-- لوحة التحكم الرئيسية -->
   <div class="container">
     <div id="adminDashboard">
       <div class="top-bar">
         <div>
-          <h2>لوحة إدارة <span>الخريجين والداتا شو</span> 🎓</h2>
+          <h2>لوحة إدارة <span>الخريجين والأوائل والداتا شو</span> 🎓</h2>
         </div>
         <div class="top-bar-links">
           <a href="index.html" target="_blank">🌐 عرض اللوحة العامة</a>
@@ -269,11 +277,12 @@
         🎬 تحميل عرض الداتا شو للحفل (PowerPoint .pptx)
       </button>
 
-      <!-- استيراد ملف إكسيل -->
       <div class="excel-box">
         <div>
           <strong style="color: #34d399; font-size:1.05rem;">📊 استيراد قائمة الطلاب من ملف Excel:</strong>
-          <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 3px;">يرجى التأكد من احتواء الملف على عمود للكود وعمود للاسم.</p>
+          <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 3px;">
+            الأعمدة المدعومة: <strong>الكود</strong> | <strong>الاسم</strong> | <strong>المعدل (GPA)</strong> | <strong>التخصص / القسم</strong>
+          </p>
         </div>
         <button class="btn btn-excel" onclick="document.getElementById('excelFileInput').click()">
           📁 رفع ملف إكسيل
@@ -281,30 +290,40 @@
         <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleExcelUpload(event)">
       </div>
 
-      <!-- إضافة طالب يدوي -->
+      <!-- إضافة طالب يدوي شامل البيانات -->
       <div class="form-card">
-        <h4 style="margin-bottom: 12px; color: #fbbf24;">➕ إضافة طالب يدوي:</h4>
+        <h4 style="margin-bottom: 12px; color: #fbbf24;">➕ إضافة خريج يدوي:</h4>
         <div class="form-row">
-          <input type="text" id="newCode" class="input-field" placeholder="الكود (مثال: 2020523)" style="flex:1; margin-bottom:0;">
-          <input type="text" id="newName" class="input-field" placeholder="اسم الطالب رباعي" style="flex:2; margin-bottom:0;">
+          <input type="text" id="newCode" class="input-field" placeholder="الكود" style="margin-bottom:0;">
+          <input type="text" id="newName" class="input-field" placeholder="اسم الطالب رباعي" style="margin-bottom:0;">
+          <input type="text" id="newDept" class="input-field" placeholder="التخصص / القسم" style="margin-bottom:0;">
+          <input type="number" step="0.01" id="newGpa" class="input-field" placeholder="المعدل (GPA)" style="margin-bottom:0;">
+        </div>
+        <div class="checkbox-wrap">
+          <label style="cursor:pointer; display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="newIsTop" style="width:18px; height:18px;">
+            👑 تعيين هذا الطالب من "أوائل المعهد" (لوحة الشرف)
+          </label>
         </div>
         <button class="btn btn-gold" style="margin-top:12px;" id="addBtn" onclick="addStudent()">حفظ الطالب في السحابة 💾</button>
       </div>
 
-      <!-- جدول استعراض الطلاب المسجلين -->
+      <!-- جدول استعراض الطلاب -->
       <div class="table-container">
         <table>
           <thead>
             <tr>
               <th>الكود</th>
               <th>الاسم</th>
-              <th>الحالة</th>
+              <th>التخصص</th>
+              <th>المعدل (GPA)</th>
+              <th>التصنيف</th>
               <th>الذكرى المسجلة</th>
-              <th>إجراء</th>
+              <th>إجراءات</th>
             </tr>
           </thead>
           <tbody id="studentsTableBody">
-            <tr><td colspan="5" style="text-align:center; padding: 25px; color:#94a3b8;">جاري جلب البيانات السحابية... ✨</td></tr>
+            <tr><td colspan="7" style="text-align:center; padding: 25px; color:#94a3b8;">جاري جلب البيانات السحابية... ✨</td></tr>
           </tbody>
         </table>
       </div>
@@ -328,7 +347,6 @@
 
     let studentsList = [];
 
-    // التحقق التلقائي من حالة تسجيل الدخول
     auth.onAuthStateChanged((user) => {
       if (user) {
         document.getElementById('loginScreen').style.display = 'none';
@@ -368,6 +386,9 @@
       db.collection("students").onSnapshot((snapshot) => {
         studentsList = [];
         snapshot.forEach(doc => studentsList.push({ id: doc.id, ...doc.data() }));
+
+        // الترتيب التنازلي التلقائي حسب المعدل
+        studentsList.sort((a, b) => (parseFloat(b.gpa) || 0) - (parseFloat(a.gpa) || 0));
         renderAdminTable();
       });
     }
@@ -377,28 +398,46 @@
       tbody.innerHTML = '';
 
       if (studentsList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 25px; color:#94a3b8;">لا يوجد طلاب مسجلون حتى الآن.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 25px; color:#94a3b8;">لا يوجد طلاب مسجلون حتى الآن.</td></tr>`;
         return;
       }
 
       studentsList.forEach(student => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><strong style="color:#fbbf24;">${student.code}</strong></td>
+          <td><strong style="color:#94a3b8;">${student.code}</strong></td>
           <td style="font-weight:700;">${student.name}</td>
-          <td><span class="status-tag ${student.submitted ? 'done' : 'waiting'}">${student.submitted ? 'تم التوثيق 🎓' : 'في الانتظار ⏳'}</span></td>
-          <td style="max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#cbd5e1;">${student.note || '—'}</td>
-          <td><button class="btn-delete" onclick="deleteStudent('${student.id}', '${student.name}')">حذف</button></td>
+          <td>${student.department || '—'}</td>
+          <td><strong style="color:#fbbf24;">${student.gpa || '—'}</strong></td>
+          <td>${student.isTop ? '<span class="top-badge">👑 أوائل</span>' : '<span style="color:#64748b;">عادي</span>'}</td>
+          <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#cbd5e1;">${student.note || '—'}</td>
+          <td>
+            <button class="btn-toggle-top" onclick="toggleTopStatus('${student.id}', ${!student.isTop})">
+              ${student.isTop ? 'إلغاء الأوائل' : '👑 جعله من الأوائل'}
+            </button>
+            <button class="btn-delete" onclick="deleteStudent('${student.id}', '${student.name}')">حذف</button>
+          </td>
         `;
         tbody.appendChild(tr);
       });
     }
 
+    async function toggleTopStatus(docId, isTop) {
+      try {
+        await db.collection("students").doc(docId).update({ isTop: isTop });
+      } catch (err) {
+        alert('تعذر تعديل الحالة: ' + err.message);
+      }
+    }
+
     async function addStudent() {
       const code = document.getElementById('newCode').value.trim().toUpperCase();
       const name = document.getElementById('newName').value.trim();
+      const department = document.getElementById('newDept').value.trim();
+      const gpa = document.getElementById('newGpa').value.trim();
+      const isTop = document.getElementById('newIsTop').checked;
 
-      if (!code || !name) return alert('يرجى كتابة الكود والاسم.');
+      if (!code || !name) return alert('يرجى كتابة الكود والاسم على الأقل.');
       if (studentsList.some(s => String(s.code).toUpperCase() === code)) return alert('هذا الكود مستخدم بالفعل.');
 
       const addBtn = document.getElementById('addBtn');
@@ -408,12 +447,18 @@
         await db.collection("students").add({
           code: code,
           name: name,
+          department: department || 'خريج المعهد',
+          gpa: gpa || '',
+          isTop: isTop,
           photo: '',
           note: '',
           submitted: false
         });
         document.getElementById('newCode').value = '';
         document.getElementById('newName').value = '';
+        document.getElementById('newDept').value = '';
+        document.getElementById('newGpa').value = '';
+        document.getElementById('newIsTop').checked = false;
       } catch (err) {
         alert('حدث خطأ أثناء الإضافة: ' + err.message);
       } finally {
@@ -438,6 +483,8 @@
           const headers = rows[0].map(h => String(h).trim().toLowerCase());
           let codeIdx = headers.findIndex(h => h.includes('كود') || h.includes('code') || h.includes('id'));
           let nameIdx = headers.findIndex(h => h.includes('اسم') || h.includes('name'));
+          let gpaIdx = headers.findIndex(h => h.includes('معدل') || h.includes('gpa') || h.includes('تقدير') || h.includes('درجة'));
+          let deptIdx = headers.findIndex(h => h.includes('تخصص') || h.includes('قسم') || h.includes('شعبة') || h.includes('major') || h.includes('dept'));
 
           if (codeIdx === -1) codeIdx = 0;
           if (nameIdx === -1) nameIdx = 1;
@@ -451,6 +498,8 @@
 
             const code = row[codeIdx] ? String(row[codeIdx]).trim().toUpperCase() : '';
             const name = row[nameIdx] ? String(row[nameIdx]).trim() : '';
+            const gpa = (gpaIdx !== -1 && row[gpaIdx]) ? String(row[gpaIdx]).trim() : '';
+            const department = (deptIdx !== -1 && row[deptIdx]) ? String(row[deptIdx]).trim() : 'خريج المعهد';
 
             if (code && name) {
               if (!studentsList.some(s => String(s.code).toUpperCase() === code)) {
@@ -458,6 +507,9 @@
                 batch.set(newDocRef, {
                   code: code,
                   name: name,
+                  department: department,
+                  gpa: gpa,
+                  isTop: false,
                   photo: '',
                   note: '',
                   submitted: false
@@ -494,6 +546,7 @@
       }
     }
 
+    // توليد وتنزيل باوربوينت الداتا شو المحدث
     async function generatePowerPoint() {
       const submittedStudents = studentsList.filter(s => s.submitted);
 
@@ -518,7 +571,7 @@
 
         introSlide.addText('🎓 حَفْلُ تَخَرُّجِ الدُّفْعَةِ', {
           x: 0.5, y: 1.8, w: 9.0, h: 1.0,
-          fontSize: 40, color: 'FFFFFF', bold: true, align: 'center', isRTL: true
+          fontSize: 42, color: 'FFFFFF', bold: true, align: 'center', isRTL: true
         });
 
         introSlide.addText('ذكريات وطموحات تصنع المستقبل ✨', {
@@ -533,10 +586,11 @@
           slide.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0, w: 10.0, h: 0.12, fill: { color: 'D97706' } });
           slide.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 5.5, w: 10.0, h: 0.12, fill: { color: 'D97706' } });
 
+          // إطار وصورة الطالب
           slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
             x: 6.6, y: 0.7, w: 2.8, h: 4.2,
             fill: { color: '1E293B' },
-            line: { color: 'D97706', width: 2 },
+            line: { color: student.isTop ? 'FBBA24' : 'D97706', width: student.isTop ? 3 : 2 },
             rectRadius: 0.15
           });
 
@@ -553,16 +607,28 @@
             });
           }
 
+          // شارة الأوائل إن وجدت
+          if (student.isTop) {
+            slide.addText('👑 من أوائل المعهد', {
+              x: 0.6, y: 0.45, w: 5.7, h: 0.4,
+              fontSize: 14, color: 'FBBA24', bold: true, align: 'right', isRTL: true
+            });
+          }
+
+          // اسم الخريج
           slide.addText(student.name, {
             x: 0.6, y: 0.8, w: 5.7, h: 0.6,
             fontSize: 26, color: 'FFFFFF', bold: true, align: 'right', isRTL: true
           });
 
-          slide.addText(`كود الخريج: ${student.code}`, {
+          // التخصص والمعدل التراكمي (بدون الكود)
+          const infoText = `التخصص: ${student.department || 'خريج المعهد'} | المعدل التراكمي: ${student.gpa || '—'}`;
+          slide.addText(infoText, {
             x: 0.6, y: 1.45, w: 5.7, h: 0.4,
             fontSize: 14, color: 'D97706', bold: true, align: 'right', isRTL: true
           });
 
+          // مربع الذكرى
           slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
             x: 0.6, y: 2.0, w: 5.7, h: 2.9,
             fill: { color: '1E293B' },
