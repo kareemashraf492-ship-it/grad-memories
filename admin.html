@@ -179,6 +179,20 @@
 
     .btn-danger-all:hover { background: var(--danger); color: white; }
 
+    /* لوحة إعداد العداد التنازلي للحفل */
+    .countdown-admin-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1.5px solid rgba(129, 140, 248, 0.4);
+      border-radius: 18px;
+      padding: 16px 20px;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
     /* لوحة التحكم السريعة في شارات الترتيب */
     .quick-rank-panel {
       background: rgba(15, 23, 42, 0.85);
@@ -226,10 +240,7 @@
       color: #fca5a5;
     }
 
-    .btn-rank-danger:hover {
-      background: var(--danger);
-      color: white;
-    }
+    .btn-rank-danger:hover { background: var(--danger); color: white; }
 
     .excel-box {
       display: flex;
@@ -389,6 +400,22 @@
         </div>
       </div>
 
+      <!-- إعدادات العداد التنازلي لموعد الحفل -->
+      <div class="countdown-admin-card">
+        <div>
+          <strong style="color: #818cf8; font-size: 1rem; display:block;">⏳ ضبط موعد وتاريخ حفل التخرج (العداد التنازلي):</strong>
+          <small style="color: #94a3b8;">سيظهر العداد التنازلي تلقائياً لجميع الطلاب في رأس الصفحة العامة.</small>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <input type="datetime-local" id="eventDateTimeInput" class="input-field" style="margin-bottom:0; width:auto;">
+          <label style="cursor:pointer; display:flex; align-items:center; gap:6px; color:#fbbf24; font-weight:bold; font-size:0.9rem;">
+            <input type="checkbox" id="showCountdownCheck" style="width:18px; height:18px;">
+            تفعيل العداد
+          </label>
+          <button class="btn btn-gold" onclick="saveCountdownSetting()">حفظ الموعد 💾</button>
+        </div>
+      </div>
+
       <!-- لوحة التحكم الجماعي السريع في الشارات -->
       <div class="quick-rank-panel">
         <div>
@@ -507,7 +534,6 @@
         </div>
       </div>
 
-      <!-- إعدادات شارة الترتيب الفردية -->
       <div style="background:rgba(15,23,42,0.7); border:1px dashed #fbbf24; border-radius:12px; padding:12px; margin-bottom:12px;">
         <label style="font-size:0.9rem; color:#fbbf24; font-weight:bold; display:block; margin-bottom:6px;">🏅 تخصيص شارة هذا الطالب على القسم:</label>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; align-items:center;">
@@ -579,6 +605,7 @@
       if (user) {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('adminDashboard').style.display = 'block';
+        listenToSettings();
         listenToStudents();
       } else {
         document.getElementById('adminDashboard').style.display = 'none';
@@ -617,6 +644,32 @@
       return isNaN(num) ? 0 : num;
     }
 
+    function listenToSettings() {
+      db.collection("settings").doc("general").onSnapshot((doc) => {
+        if (doc.exists) {
+          const d = doc.data();
+          if (d.eventDate) document.getElementById('eventDateTimeInput').value = d.eventDate;
+          document.getElementById('showCountdownCheck').checked = !!d.showCountdown;
+        }
+      });
+    }
+
+    async function saveCountdownSetting() {
+      const eventDate = document.getElementById('eventDateTimeInput').value;
+      const showCountdown = document.getElementById('showCountdownCheck').checked;
+
+      try {
+        await db.collection("settings").doc("general").set({
+          eventDate: eventDate,
+          showCountdown: showCountdown,
+          eventTitle: 'حفل تخرج الدفعة 93'
+        }, { merge: true });
+        alert('✅ تم حفظ إعدادات العداد التنازلي بنجاح!');
+      } catch (err) {
+        alert('حدث خطأ: ' + err.message);
+      }
+    }
+
     function listenToStudents() {
       db.collection("students").onSnapshot((snapshot) => {
         studentsList = [];
@@ -646,17 +699,14 @@
       let topCount = 0;
 
       Object.keys(deptGroups).forEach(dept => {
-        // ترتيب طلاب القسم تنازلياً وفقاً للمعدل
         deptGroups[dept].sort((a, b) => parseGpa(b.gpa) - parseGpa(a.gpa));
 
         deptGroups[dept].forEach((student, index) => {
           const docRef = db.collection("students").doc(student.id);
           if (index === 0) {
-            // الأول على القسم: تثبيت شارة المركز الأول وإظهارها
             batch.update(docRef, { customRank: '1', hideRank: false });
             topCount++;
           } else {
-            // باقي الطلاب: إخفاء الشارة نهائياً
             batch.update(docRef, { customRank: '', hideRank: true });
           }
         });
@@ -1103,7 +1153,6 @@
             let rankHonorText = [];
             if (student.isTop) rankHonorText.push('👑 أوائل المعهد');
             
-            // قراءة الشارة المخصصة
             if (!student.hideRank) {
               const r = student.customRank ? student.customRank : (sIndex < 10 ? (sIndex + 1) : null);
               if (r) rankHonorText.push(`🏅 المركز ${r} على القسم`);
