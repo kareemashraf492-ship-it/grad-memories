@@ -96,12 +96,12 @@
     }
 
     .btn {
-      padding: 12px 20px;
+      padding: 11px 18px;
       border-radius: 12px;
       border: none;
       cursor: pointer;
       font-weight: 800;
-      font-size: 1rem;
+      font-size: 0.95rem;
       transition: 0.3s;
       display: inline-flex;
       align-items: center;
@@ -113,7 +113,6 @@
       background: var(--gold-gradient);
       color: #0f172a;
       box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
-      width: 100%;
     }
 
     #adminDashboard {
@@ -180,45 +179,56 @@
 
     .btn-danger-all:hover { background: var(--danger); color: white; }
 
-    /* صندوق التحكم الشامل في شارات الترتيب */
-    .rank-mode-card {
-      background: rgba(15, 23, 42, 0.7);
+    /* لوحة التحكم السريعة في شارات الترتيب */
+    .quick-rank-panel {
+      background: rgba(15, 23, 42, 0.85);
       border: 1.5px solid rgba(251, 191, 36, 0.4);
-      border-radius: 16px;
+      border-radius: 18px;
       padding: 16px 20px;
-      margin-bottom: 20px;
+      margin-bottom: 22px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
     }
 
-    .rank-mode-options {
+    .quick-rank-buttons {
       display: flex;
-      gap: 15px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
-    .rank-radio-label {
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #e2e8f0;
-      font-weight: 700;
-      font-size: 0.95rem;
-      padding: 6px 14px;
-      background: rgba(30, 41, 59, 0.6);
+    .btn-rank-action {
+      background: rgba(30, 41, 59, 0.9);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      transition: all 0.2s;
+      color: #ffffff;
+      padding: 10px 16px;
+      font-size: 0.9rem;
     }
 
-    .rank-radio-label:has(input:checked) {
+    .btn-rank-action:hover {
       background: rgba(251, 191, 36, 0.2);
       border-color: #fbbf24;
       color: #fbbf24;
+    }
+
+    .btn-rank-primary {
+      background: var(--gold-gradient);
+      color: #0f172a;
+      font-weight: 900;
+    }
+
+    .btn-rank-danger {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    .btn-rank-danger:hover {
+      background: var(--danger);
+      color: white;
     }
 
     .excel-box {
@@ -364,7 +374,7 @@
     <h2>لوحة تحكم <span>المشرف</span></h2>
     <input type="email" id="adminEmailInput" class="input-field" placeholder="البريد الإلكتروني">
     <input type="password" id="adminPasswordInput" class="input-field" placeholder="كلمة المرور" onkeypress="if(event.key==='Enter') loginAdmin()">
-    <button class="btn btn-gold" id="loginBtn" onclick="loginAdmin()">دخول للوحة التحكم 🚀</button>
+    <button class="btn btn-gold" id="loginBtn" style="width:100%;" onclick="loginAdmin()">دخول للوحة التحكم 🚀</button>
   </div>
 
   <div class="container">
@@ -379,25 +389,22 @@
         </div>
       </div>
 
-      <!-- صندوق التحكم الشامل في شارات الترتيب بالموقع -->
-      <div class="rank-mode-card">
+      <!-- لوحة التحكم الجماعي السريع في الشارات -->
+      <div class="quick-rank-panel">
         <div>
-          <strong style="color: #fbbf24; font-size: 1rem; display:block;">⚙️ نظام عرض شارات الترتيب في الموقع:</strong>
-          <small style="color: #94a3b8;">اختر كيف تظهر شارات الترتيب لجميع الخريجين على الموقع والباوربوينت.</small>
+          <strong style="color: #fbbf24; font-size: 1.05rem; display:block;">⚡ تحكم جماعي في شارات الترتيب:</strong>
+          <small style="color: #cbd5e1;">تطبيق إجراء فوري وشامل على جميع الطلاب بنقرة واحدة.</small>
         </div>
-        <div class="rank-mode-options">
-          <label class="rank-radio-label">
-            <input type="radio" name="globalRankMode" value="top10" onchange="updateGlobalRankSetting('top10')" checked>
-            أول 10 في كل تخصص 🏅
-          </label>
-          <label class="rank-radio-label">
-            <input type="radio" name="globalRankMode" value="top1_only" onchange="updateGlobalRankSetting('top1_only')">
-            الأول فقط في كل تخصص 🥇
-          </label>
-          <label class="rank-radio-label">
-            <input type="radio" name="globalRankMode" value="hide_all" onchange="updateGlobalRankSetting('hide_all')">
-            إلغاء شارة الترتيب عن الكل ❌
-          </label>
+        <div class="quick-rank-buttons">
+          <button class="btn btn-rank-action btn-rank-primary" onclick="setTop1OnlyGlobal()">
+            🥇 إبقاء الأول فقط وحذف الباقي
+          </button>
+          <button class="btn btn-rank-action" onclick="enableAllRanksGlobal()">
+            🏅 إظهار الترتيب للجميع (أول 10)
+          </button>
+          <button class="btn btn-rank-action btn-rank-danger" onclick="hideAllRanksGlobal()">
+            ❌ إخفاء الشارة عن الكل
+          </button>
         </div>
       </div>
 
@@ -470,7 +477,7 @@
     </div>
   </div>
 
-  <!-- نافذة تعديل بيانات الخريج وتخصيص شارة الترتيب فردياً -->
+  <!-- نافذة تعديل بيانات الخريج -->
   <div class="modal-overlay" id="editModal">
     <div class="modal-box">
       <div class="modal-header">
@@ -545,7 +552,7 @@
         </label>
       </div>
 
-      <button class="btn btn-gold" id="saveEditBtn" onclick="saveStudentEdit()">حفظ التعديلات 💾</button>
+      <button class="btn btn-gold" id="saveEditBtn" style="width:100%;" onclick="saveStudentEdit()">حفظ التعديلات 💾</button>
     </div>
   </div>
 
@@ -567,13 +574,11 @@
     const db = firebase.firestore();
 
     let studentsList = [];
-    let currentGlobalRankMode = 'top10';
 
     auth.onAuthStateChanged((user) => {
       if (user) {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('adminDashboard').style.display = 'block';
-        listenToSettings();
         listenToStudents();
       } else {
         document.getElementById('adminDashboard').style.display = 'none';
@@ -612,25 +617,6 @@
       return isNaN(num) ? 0 : num;
     }
 
-    function listenToSettings() {
-      db.collection("settings").doc("general").onSnapshot((doc) => {
-        if (doc.exists && doc.data().rankMode) {
-          currentGlobalRankMode = doc.data().rankMode;
-          const radio = document.querySelector(`input[name="globalRankMode"][value="${currentGlobalRankMode}"]`);
-          if (radio) radio.checked = true;
-        }
-      });
-    }
-
-    async function updateGlobalRankSetting(mode) {
-      currentGlobalRankMode = mode;
-      try {
-        await db.collection("settings").doc("general").set({ rankMode: mode }, { merge: true });
-      } catch (err) {
-        console.error("Settings update error:", err);
-      }
-    }
-
     function listenToStudents() {
       db.collection("students").onSnapshot((snapshot) => {
         studentsList = [];
@@ -641,6 +627,87 @@
       }, (err) => {
         console.error("Firestore Admin Error:", err);
       });
+    }
+
+    // 1. ميزة: إبقاء الأول على كل قسم فقط وإلغاء الشارة عن الباقين بضغطة واحدة
+    async function setTop1OnlyGlobal() {
+      if (studentsList.length === 0) return alert('لا يوجد طلاب لتطبيق الإجراء عليهم.');
+
+      if (!confirm('هل أنت متأكد من تفعيل الشارة للأول فقط على كل قسم وإخفائها عن باقي الطلاب دفعة واحدة؟')) return;
+
+      const deptGroups = {};
+      studentsList.forEach(s => {
+        const dept = s.department ? s.department.trim() : 'عام';
+        if (!deptGroups[dept]) deptGroups[dept] = [];
+        deptGroups[dept].push(s);
+      });
+
+      const batch = db.batch();
+      let topCount = 0;
+
+      Object.keys(deptGroups).forEach(dept => {
+        // ترتيب طلاب القسم تنازلياً وفقاً للمعدل
+        deptGroups[dept].sort((a, b) => parseGpa(b.gpa) - parseGpa(a.gpa));
+
+        deptGroups[dept].forEach((student, index) => {
+          const docRef = db.collection("students").doc(student.id);
+          if (index === 0) {
+            // الأول على القسم: تثبيت شارة المركز الأول وإظهارها
+            batch.update(docRef, { customRank: '1', hideRank: false });
+            topCount++;
+          } else {
+            // باقي الطلاب: إخفاء الشارة نهائياً
+            batch.update(docRef, { customRank: '', hideRank: true });
+          }
+        });
+      });
+
+      try {
+        await batch.commit();
+        alert(`✅ تم بنجاح تثبيت شارة (المركز 1) للأوائل في كل قسم (${topCount} تخصص) وإخفاء الشارة عن باقي الطلاب.`);
+      } catch (err) {
+        alert('حدث خطأ: ' + err.message);
+      }
+    }
+
+    // 2. ميزة: تفعيل شارات الترتيب للجميع (أول 10 في كل قسم) بضغطة واحدة
+    async function enableAllRanksGlobal() {
+      if (studentsList.length === 0) return alert('لا يوجد طلاب.');
+
+      if (!confirm('هل تريد إزالة أي إخفاء وتفعيل شارة الترتيب التلقائي للجميع (أول 10 في كل تخصص)؟')) return;
+
+      const batch = db.batch();
+      studentsList.forEach(s => {
+        const docRef = db.collection("students").doc(s.id);
+        batch.update(docRef, { customRank: '', hideRank: false });
+      });
+
+      try {
+        await batch.commit();
+        alert('✅ تم بنجاح تفعيل شارات الترتيب التلقائي لجميع الطلاب (لأول 10 في كل تخصص).');
+      } catch (err) {
+        alert('حدث خطأ: ' + err.message);
+      }
+    }
+
+    // 3. ميزة: إخفاء الشارات عن جميع الطلاب بدون استثناء
+    async function hideAllRanksGlobal() {
+      if (studentsList.length === 0) return alert('لا يوجد طلاب.');
+
+      if (!confirm('هل أنت متأكد من إخفاء شارة الترتيب عن جميع الطلاب بدون استثناء؟')) return;
+
+      const batch = db.batch();
+      studentsList.forEach(s => {
+        const docRef = db.collection("students").doc(s.id);
+        batch.update(docRef, { hideRank: true });
+      });
+
+      try {
+        await batch.commit();
+        alert('✅ تم بنجاح إخفاء شارة الترتيب عن جميع الطلاب.');
+      } catch (err) {
+        alert('حدث خطأ: ' + err.message);
+      }
     }
 
     function renderAdminTable() {
@@ -669,7 +736,7 @@
         if (student.hideRank) {
           rankBadgeText = '<span style="color:#f87171; font-weight:bold;">❌ مخفية</span>';
         } else if (student.customRank) {
-          rankBadgeText = `<span style="color:#38bdf8; font-weight:bold;">يدوي (${student.customRank})</span>`;
+          rankBadgeText = `<span style="color:#fbbf24; font-weight:bold;">🥇 المركز (${student.customRank})</span>`;
         }
 
         const tr = document.createElement('tr');
@@ -888,7 +955,7 @@
           note: note,
           isTop: isTop
         });
-        alert('✅ تم تعديل بيانات الخريج بنجاح!');
+        alert('✅ تم تعديل بيانات الخريج وإعدادات الشارة بنجاح!');
         closeEditModal();
       } catch (err) {
         alert('تعذر الحفظ: ' + err.message);
@@ -1036,14 +1103,10 @@
             let rankHonorText = [];
             if (student.isTop) rankHonorText.push('👑 أوائل المعهد');
             
-            // تطبيق خيار شارة الترتيب
-            if (!student.hideRank && currentGlobalRankMode !== 'hide_all') {
-              let r = student.customRank ? student.customRank : (sIndex + 1);
-              if (currentGlobalRankMode === 'top1_only') {
-                if (r == 1) rankHonorText.push(`🥇 الأول على القسم`);
-              } else if (currentGlobalRankMode === 'top10') {
-                if (r <= 10) rankHonorText.push(`🏅 المركز ${r} على القسم`);
-              }
+            // قراءة الشارة المخصصة
+            if (!student.hideRank) {
+              const r = student.customRank ? student.customRank : (sIndex < 10 ? (sIndex + 1) : null);
+              if (r) rankHonorText.push(`🏅 المركز ${r} على القسم`);
             }
 
             if (student.honors) rankHonorText.push(`🏆 ${student.honors}`);
