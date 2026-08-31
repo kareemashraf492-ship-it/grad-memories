@@ -180,6 +180,47 @@
 
     .btn-danger-all:hover { background: var(--danger); color: white; }
 
+    /* صندوق التحكم الشامل في شارات الترتيب */
+    .rank-mode-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1.5px solid rgba(251, 191, 36, 0.4);
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .rank-mode-options {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .rank-radio-label {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #e2e8f0;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 6px 14px;
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      transition: all 0.2s;
+    }
+
+    .rank-radio-label:has(input:checked) {
+      background: rgba(251, 191, 36, 0.2);
+      border-color: #fbbf24;
+      color: #fbbf24;
+    }
+
     .excel-box {
       display: flex;
       justify-content: space-between;
@@ -338,6 +379,28 @@
         </div>
       </div>
 
+      <!-- صندوق التحكم الشامل في شارات الترتيب بالموقع -->
+      <div class="rank-mode-card">
+        <div>
+          <strong style="color: #fbbf24; font-size: 1rem; display:block;">⚙️ نظام عرض شارات الترتيب في الموقع:</strong>
+          <small style="color: #94a3b8;">اختر كيف تظهر شارات الترتيب لجميع الخريجين على الموقع والباوربوينت.</small>
+        </div>
+        <div class="rank-mode-options">
+          <label class="rank-radio-label">
+            <input type="radio" name="globalRankMode" value="top10" onchange="updateGlobalRankSetting('top10')" checked>
+            أول 10 في كل تخصص 🏅
+          </label>
+          <label class="rank-radio-label">
+            <input type="radio" name="globalRankMode" value="top1_only" onchange="updateGlobalRankSetting('top1_only')">
+            الأول فقط في كل تخصص 🥇
+          </label>
+          <label class="rank-radio-label">
+            <input type="radio" name="globalRankMode" value="hide_all" onchange="updateGlobalRankSetting('hide_all')">
+            إلغاء شارة الترتيب عن الكل ❌
+          </label>
+        </div>
+      </div>
+
       <div class="action-toolbar">
         <button class="btn btn-slideshow" id="exportPptxBtn" onclick="generatePowerPoint()">
           🎬 تحميل عرض الداتا شو للحفل (PowerPoint .pptx)
@@ -352,7 +415,7 @@
         <div>
           <strong style="color: #34d399; font-size:1.05rem;">📊 استيراد قائمة الطلاب من ملف Excel:</strong>
           <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 3px;">
-            الأعمدة المدعومة: <strong>الكود</strong> | <strong>الاسم</strong> | <strong>المعدل</strong> | <strong>التخصص</strong> | <strong>المشروع</strong> | <strong>ترتيب المشروع</strong> | <strong>التميز</strong> | <strong>الترتيب اليدوي</strong>
+            الأعمدة المدعومة: <strong>الكود</strong> | <strong>الاسم</strong> | <strong>المعدل</strong> | <strong>التخصص</strong> | <strong>المشروع</strong> | <strong>ترتيب المشروع</strong> | <strong>التميز</strong>
           </p>
         </div>
         <button class="btn btn-excel" onclick="document.getElementById('excelFileInput').click()">
@@ -407,7 +470,7 @@
     </div>
   </div>
 
-  <!-- نافذة تعديل بيانات الخريج وتخصيص شارة الترتيب -->
+  <!-- نافذة تعديل بيانات الخريج وتخصيص شارة الترتيب فردياً -->
   <div class="modal-overlay" id="editModal">
     <div class="modal-box">
       <div class="modal-header">
@@ -437,22 +500,21 @@
         </div>
       </div>
 
-      <!-- إعدادات شارة الترتيب -->
+      <!-- إعدادات شارة الترتيب الفردية -->
       <div style="background:rgba(15,23,42,0.7); border:1px dashed #fbbf24; border-radius:12px; padding:12px; margin-bottom:12px;">
-        <label style="font-size:0.9rem; color:#fbbf24; font-weight:bold; display:block; margin-bottom:6px;">🏅 تخصيص شارة الترتيب على القسم:</label>
+        <label style="font-size:0.9rem; color:#fbbf24; font-weight:bold; display:block; margin-bottom:6px;">🏅 تخصيص شارة هذا الطالب على القسم:</label>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; align-items:center;">
           <div>
-            <label style="font-size:0.8rem; color:#94a3b8;">ترتيب يدوي (اختياري):</label>
+            <label style="font-size:0.8rem; color:#94a3b8;">ترتيب يدوي محدد:</label>
             <input type="number" id="editCustomRank" class="input-field" placeholder="مثال: 1 أو 2" style="margin-bottom:0;">
           </div>
           <div style="padding-top:15px;">
             <label style="cursor:pointer; display:flex; align-items:center; gap:6px; color:#f87171; font-weight:bold; font-size:0.85rem;">
               <input type="checkbox" id="editHideRank" style="width:18px; height:18px;">
-              ❌ إخفاء شارة الترتيب نهائياً
+              ❌ إخفاء الشارة عن هذا الطالب
             </label>
           </div>
         </div>
-        <small style="color:#64748b; font-size:0.75rem; display:block; margin-top:4px;">* إذا تركته فارغاً ولم تختر الإخفاء، سيتم حساب الترتيب تلقائياً حسب المعدل.</small>
       </div>
 
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
@@ -505,11 +567,13 @@
     const db = firebase.firestore();
 
     let studentsList = [];
+    let currentGlobalRankMode = 'top10';
 
     auth.onAuthStateChanged((user) => {
       if (user) {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('adminDashboard').style.display = 'block';
+        listenToSettings();
         listenToStudents();
       } else {
         document.getElementById('adminDashboard').style.display = 'none';
@@ -546,6 +610,25 @@
       let str = String(val).trim().replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(',', '.');
       let num = parseFloat(str);
       return isNaN(num) ? 0 : num;
+    }
+
+    function listenToSettings() {
+      db.collection("settings").doc("general").onSnapshot((doc) => {
+        if (doc.exists && doc.data().rankMode) {
+          currentGlobalRankMode = doc.data().rankMode;
+          const radio = document.querySelector(`input[name="globalRankMode"][value="${currentGlobalRankMode}"]`);
+          if (radio) radio.checked = true;
+        }
+      });
+    }
+
+    async function updateGlobalRankSetting(mode) {
+      currentGlobalRankMode = mode;
+      try {
+        await db.collection("settings").doc("general").set({ rankMode: mode }, { merge: true });
+      } catch (err) {
+        console.error("Settings update error:", err);
+      }
     }
 
     function listenToStudents() {
@@ -682,7 +765,6 @@
           let projIdx = headers.findIndex(h => h.includes('مشروع') || h.includes('project'));
           let projRankIdx = headers.findIndex(h => h.includes('ترتيب المشروع') || h.includes('project_rank'));
           let honorsIdx = headers.findIndex(h => h.includes('تميز') || h.includes('شرف') || h.includes('وسام') || h.includes('honor'));
-          let customRankIdx = headers.findIndex(h => h.includes('ترتيب يدوي') || h.includes('custom_rank') || h.includes('رتبة'));
 
           if (codeIdx === -1) codeIdx = 0;
           if (nameIdx === -1) nameIdx = 1;
@@ -703,7 +785,6 @@
             const projectName = (projIdx !== -1 && row[projIdx]) ? String(row[projIdx]).trim() : '';
             const projectRank = (projRankIdx !== -1 && row[projRankIdx]) ? String(row[projRankIdx]).trim() : (projectName ? 'مشروع متميز' : '');
             const honors = (honorsIdx !== -1 && row[honorsIdx]) ? String(row[honorsIdx]).trim() : '';
-            const customRank = (customRankIdx !== -1 && row[customRankIdx]) ? String(row[customRankIdx]).trim() : '';
 
             if (code && name) {
               const alreadyExistsInDB = studentsList.some(s => String(s.code).trim().toUpperCase() === code);
@@ -717,7 +798,7 @@
                   name: name,
                   department: department,
                   gpa: gpa,
-                  customRank: customRank,
+                  customRank: '',
                   hideRank: false,
                   projectName: projectName,
                   projectRank: projectRank,
@@ -807,7 +888,7 @@
           note: note,
           isTop: isTop
         });
-        alert('✅ تم تعديل بيانات الخريج وإعدادات الشارة بنجاح!');
+        alert('✅ تم تعديل بيانات الخريج بنجاح!');
         closeEditModal();
       } catch (err) {
         alert('تعذر الحفظ: ' + err.message);
@@ -955,10 +1036,14 @@
             let rankHonorText = [];
             if (student.isTop) rankHonorText.push('👑 أوائل المعهد');
             
-            // قراءة الشارة المخصصة
-            if (!student.hideRank) {
-              const r = student.customRank ? student.customRank : (sIndex < 10 ? (sIndex + 1) : null);
-              if (r) rankHonorText.push(`🏅 المركز ${r} على القسم`);
+            // تطبيق خيار شارة الترتيب
+            if (!student.hideRank && currentGlobalRankMode !== 'hide_all') {
+              let r = student.customRank ? student.customRank : (sIndex + 1);
+              if (currentGlobalRankMode === 'top1_only') {
+                if (r == 1) rankHonorText.push(`🥇 الأول على القسم`);
+              } else if (currentGlobalRankMode === 'top10') {
+                if (r <= 10) rankHonorText.push(`🏅 المركز ${r} على القسم`);
+              }
             }
 
             if (student.honors) rankHonorText.push(`🏆 ${student.honors}`);
