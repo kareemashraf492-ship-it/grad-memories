@@ -214,16 +214,6 @@
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .btn-facebook {
-      background: #1877f2;
-      color: #ffffff;
-      box-shadow: 0 4px 15px rgba(24, 119, 242, 0.35);
-    }
-    .btn-facebook:hover {
-      background: #166fe5;
-      transform: translateY(-2px);
-    }
-
     .search-wrapper {
       position: relative;
       z-index: 1;
@@ -445,7 +435,6 @@
       margin-bottom: 12px;
     }
 
-    /* صف الأزرار التفاعلية على الكارت */
     .card-actions-row {
       display: flex;
       gap: 8px;
@@ -619,7 +608,6 @@
       outline: none;
     }
 
-    /* قالب الـ Story للإنستجرام والفيسبوك */
     #storyCardTemplate {
       position: fixed;
       left: -9999px;
@@ -755,12 +743,11 @@
         <div id="modalStudentNote" class="card-note" style="margin-top:4px; text-align:center;">—</div>
       </div>
 
-      <!-- أزرار الإجراءات داخل الـ Modal -->
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:12px;">
         <button class="btn btn-gold" id="downloadStoryBtn" style="font-size:0.9rem; padding:10px;" onclick="generateStoryCardImage()">
           📲 تحميل البطاقة
         </button>
-        <button class="btn btn-facebook" style="font-size:0.9rem; padding:10px;" onclick="shareStudentProfile(selectedStudentForStory ? selectedStudentForStory.name : '')">
+        <button class="btn card-share-btn" style="font-size:0.9rem; padding:10px;" onclick="shareStudentProfile(selectedStudentForStory ? selectedStudentForStory.name : '')">
           📢 مشاركة فيسبوك
         </button>
       </div>
@@ -969,18 +956,76 @@
       }
     }
 
-    // دالة مشاركة الطالب على فيسبوك بطريقة مضمونة 100%
-    function shareStudentProfile(studentName, e) {
+    // دالة مشاركة بطاقة الطالب كصورة حقيقية ولينك معاً
+    async function shareStudentProfile(studentName, e) {
       if (e) e.stopPropagation();
-      const currentUrl = window.location.href;
-      const shareText = `🎓 فخور بتخرجي ضمن دفعة 93 بمعهد طيبة العالي لتكنولوجيا الإدارة والمعلومات! ${studentName ? `| الخريج: ${studentName}` : ''}`;
-      
-      const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}&quote=${encodeURIComponent(shareText)}`;
-      
-      // محاولة فتح نافذة جديدة مع fallback لتجنب حظر الـ Popup
-      const newWin = window.open(fbUrl, '_blank');
-      if (!newWin || newWin.closed || typeof newWin.closed === 'undefined') {
-        window.location.href = fbUrl;
+      const student = (selectedStudentForStory && selectedStudentForStory.name === studentName) 
+        ? selectedStudentForStory 
+        : allStudents.find(s => s.name === studentName) || selectedStudentForStory;
+
+      if (!student) return;
+
+      const template = document.getElementById('storyCardTemplate');
+      document.getElementById('storyStudentName').innerText = student.name || 'خريج متميز';
+      document.getElementById('storyStudentDept').innerText = `قسم: ${student.department || 'خريج المعهد'}`;
+      document.getElementById('storyGpaBox').innerText = `⭐ المعدل: ${student.gpa || '—'}`;
+      document.getElementById('storyNoteBox').innerText = student.submitted ? `“ ${student.note} ”` : '“ مبارك التخرج والنجاح دائماً! ”';
+
+      const avatarBox = document.getElementById('storyAvatarBox');
+      if (student.photo) {
+        avatarBox.innerHTML = `<img src="${student.photo}" style="width:100%; height:100%; object-fit:cover;">`;
+      } else {
+        avatarBox.innerHTML = `<span style="font-size:8rem;">🎓</span>`;
+      }
+
+      const effRank = getEffectiveRank(student);
+      const rankBox = document.getElementById('storyRankBox');
+      if (effRank) {
+        rankBox.style.display = 'block';
+        rankBox.innerText = `🏅 المركز ${effRank} على القسم`;
+      } else {
+        rankBox.style.display = 'none';
+      }
+
+      try {
+        const canvas = await html2canvas(template, {
+          scale: 1.2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#0f172a'
+        });
+
+        canvas.toBlob(async (blob) => {
+          const file = new File([blob], `Graduation_${student.name.replace(/\s+/g, '_')}.png`, { type: 'image/png' });
+          const shareData = {
+            title: `تخرج ${student.name} - دفعة 93`,
+            text: `🎓 فخور بتخرجي من معهد طيبة العالي لتكنولوجيا الإدارة والمعلومات - الدفعة 93! ✨\n`,
+            url: window.location.href,
+            files: [file]
+          };
+
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share(shareData);
+              launchConfetti();
+            } catch (err) {
+              console.log("Share dismissed");
+            }
+          } else {
+            const link = document.createElement('a');
+            link.download = `Graduation_${student.name.replace(/\s+/g, '_')}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+
+            const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(shareData.text)}`;
+            window.open(fbUrl, '_blank', 'width=600,height=500');
+            alert('تم تحميل صورة بطاقة تخرجك بنجاح! يمكنك إرفاقها مباشرة الآن في منشور فيسبوك 🎓');
+          }
+        }, 'image/png');
+
+      } catch (err) {
+        const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
+        window.open(fbUrl, '_blank', 'width=600,height=500');
       }
     }
 
@@ -1008,7 +1053,6 @@
 
           <div class="card-note">${student.submitted ? `“ ${student.note} ”` : 'في انتظار توثيق الذكرى... ⏳'}</div>
 
-          <!-- الأزرار التفاعلية على كل بطاقة -->
           <div class="card-actions-row">
             <button class="card-react-btn" onclick="sendCongratulation(event, '${student.id}')">
               ❤️ مبارك (${likesCount})
