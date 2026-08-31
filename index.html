@@ -442,21 +442,31 @@
       justify-content: center;
       word-break: break-word;
       font-style: italic;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    /* صف الأزرار التفاعلية على الكارت */
+    .card-actions-row {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      justify-content: center;
     }
 
     .card-react-btn {
+      flex: 1;
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--border);
       color: #cbd5e1;
-      padding: 6px 14px;
+      padding: 6px 10px;
       border-radius: 20px;
       font-size: 0.8rem;
       font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      gap: 4px;
       transition: all 0.2s;
     }
 
@@ -464,7 +474,28 @@
       background: rgba(239, 68, 68, 0.15);
       border-color: rgba(239, 68, 68, 0.5);
       color: #f87171;
-      transform: scale(1.05);
+    }
+
+    .card-share-btn {
+      flex: 1;
+      background: rgba(24, 119, 242, 0.15);
+      border: 1px solid rgba(24, 119, 242, 0.4);
+      color: #93c5fd;
+      padding: 6px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .card-share-btn:hover {
+      background: #1877f2;
+      color: #ffffff;
     }
 
     .project-board {
@@ -627,7 +658,7 @@
     
     <p>لحظات وتعب سنين نوثقها هنا لتظل فخراً وذكرى خالدة بيننا مهما طالت الأيام ✨</p>
 
-    <!-- شريط العداد التنازلي للحفل (يعمل تلقائياً ومباشرة) -->
+    <!-- شريط العداد التنازلي للحفل -->
     <div class="countdown-section" id="countdownWrapper">
       <div class="countdown-title" id="countdownTitleText">⏳ متبقي على بدء حفل التخرج:</div>
       <div class="countdown-grid">
@@ -724,12 +755,12 @@
         <div id="modalStudentNote" class="card-note" style="margin-top:4px; text-align:center;">—</div>
       </div>
 
-      <!-- أزرار الإجراءات: تحميل الـ Story والمشاركة على فيسبوك -->
+      <!-- أزرار الإجراءات داخل الـ Modal -->
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:12px;">
         <button class="btn btn-gold" id="downloadStoryBtn" style="font-size:0.9rem; padding:10px;" onclick="generateStoryCardImage()">
           📲 تحميل البطاقة
         </button>
-        <button class="btn btn-facebook" style="font-size:0.9rem; padding:10px;" onclick="shareOnFacebook()">
+        <button class="btn btn-facebook" style="font-size:0.9rem; padding:10px;" onclick="shareStudentProfile(selectedStudentForStory ? selectedStudentForStory.name : '')">
           📢 مشاركة فيسبوك
         </button>
       </div>
@@ -839,7 +870,6 @@
     let tempPhotoBase64 = '';
     let countdownInterval = null;
 
-    // موعد افتراضي لحفل التخرج للتأكد من عمل العداد دائماً
     let eventDateString = '2026-09-15T18:00';
 
     window.addEventListener('load', () => {
@@ -865,7 +895,6 @@
       return isNaN(num) ? 0 : num;
     }
 
-    // مزامنة موعد العداد التنازلي من قاعدة البيانات
     db.collection("settings").doc("general").onSnapshot((doc) => {
       if (doc.exists) {
         const data = doc.data();
@@ -940,6 +969,21 @@
       }
     }
 
+    // دالة مشاركة الطالب على فيسبوك بطريقة مضمونة 100%
+    function shareStudentProfile(studentName, e) {
+      if (e) e.stopPropagation();
+      const currentUrl = window.location.href;
+      const shareText = `🎓 فخور بتخرجي ضمن دفعة 93 بمعهد طيبة العالي لتكنولوجيا الإدارة والمعلومات! ${studentName ? `| الخريج: ${studentName}` : ''}`;
+      
+      const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}&quote=${encodeURIComponent(shareText)}`;
+      
+      // محاولة فتح نافذة جديدة مع fallback لتجنب حظر الـ Popup
+      const newWin = window.open(fbUrl, '_blank');
+      if (!newWin || newWin.closed || typeof newWin.closed === 'undefined') {
+        window.location.href = fbUrl;
+      }
+    }
+
     function createCardHTML(student) {
       const effRank = getEffectiveRank(student);
       let top10Badge = effRank ? `<div class="badge-top-10">🏅 المركز ${effRank}</div>` : '';
@@ -964,9 +1008,15 @@
 
           <div class="card-note">${student.submitted ? `“ ${student.note} ”` : 'في انتظار توثيق الذكرى... ⏳'}</div>
 
-          <button class="card-react-btn" onclick="sendCongratulation(event, '${student.id}')">
-            ❤️ مبارك (${likesCount})
-          </button>
+          <!-- الأزرار التفاعلية على كل بطاقة -->
+          <div class="card-actions-row">
+            <button class="card-react-btn" onclick="sendCongratulation(event, '${student.id}')">
+              ❤️ مبارك (${likesCount})
+            </button>
+            <button class="card-share-btn" onclick="shareStudentProfile('${student.name}', event)">
+              📢 شير
+            </button>
+          </div>
         </div>
       `;
     }
@@ -1168,15 +1218,6 @@
 
     function closeProfileModal() {
       document.getElementById('profileModal').style.display = 'none';
-    }
-
-    // دالة مشاركة بطاقة التخرج على فيسبوك مباشرة
-    function shareOnFacebook() {
-      if (!selectedStudentForStory) return;
-      const url = encodeURIComponent(window.location.href);
-      const text = encodeURIComponent(`🎓 فخور بتخرجي من معهد طيبة العالي لتكنولوجيا الإدارة والمعلومات - الدفعة 93! مبارك التخرج لكل زملائي ✨`);
-      const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`;
-      window.open(fbShareUrl, '_blank', 'width=600,height=500');
     }
 
     async function generateStoryCardImage() {
