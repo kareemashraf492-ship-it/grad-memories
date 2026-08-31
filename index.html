@@ -709,6 +709,16 @@
       }
     }
 
+    // دالة دقيقة لتحويل وقراءة المعدل التراكمي مهما كانت طريقة كتابته
+    function parseGpa(val) {
+      if (!val) return 0;
+      let str = String(val).trim()
+        .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+        .replace(',', '.');
+      let num = parseFloat(str);
+      return isNaN(num) ? 0 : num;
+    }
+
     db.collection("students").onSnapshot((snapshot) => {
       allStudents = [];
       snapshot.forEach(doc => allStudents.push({ id: doc.id, ...doc.data() }));
@@ -761,7 +771,7 @@
       let submittedCount = 0;
       allStudents.forEach(s => { if (s.submitted) submittedCount++; });
 
-      // 1. حساب الترتيب الحقيقي الثابت لكل طالب في قسمه
+      // 1. تجميع وترتيب كل قسم تنازلياً وفقاً للمعدل وحساب الترتيب الحقيقي
       const allDeptGroups = {};
       allStudents.forEach(student => {
         const dept = student.department ? student.department.trim() : 'عام';
@@ -770,7 +780,8 @@
       });
 
       Object.keys(allDeptGroups).forEach(dept => {
-        allDeptGroups[dept].sort((a, b) => (parseFloat(b.gpa) || 0) - (parseFloat(a.gpa) || 0));
+        // ترتيب تنازلي حقيقي ودقيق للمعدل
+        allDeptGroups[dept].sort((a, b) => parseGpa(b.gpa) - parseGpa(a.gpa));
         allDeptGroups[dept].forEach((student, idx) => {
           student.actualDeptRank = idx + 1;
         });
@@ -785,9 +796,9 @@
         return nameMatch || deptMatch || projMatch || honorsMatch;
       });
 
-      // 3. عرض أوائل المعهد بالأعلى
+      // 3. عرض أوائل المعهد بالأعلى (مرتبين تنازلياً حسب المعدل)
       const topStudents = filteredStudents.filter(s => s.isTop);
-      topStudents.sort((a, b) => (parseFloat(b.gpa) || 0) - (parseFloat(a.gpa) || 0));
+      topStudents.sort((a, b) => parseGpa(b.gpa) - parseGpa(a.gpa));
 
       if (topStudents.length > 0) {
         topSection.style.display = 'block';
@@ -819,6 +830,9 @@
         projectsSection.style.display = 'block';
         projectKeys.forEach(projKey => {
           const projData = projectGroups[projKey];
+          // ترتيب الطلاب داخل كل مشروع تنازلياً حسب المعدل
+          projData.members.sort((a, b) => parseGpa(b.gpa) - parseGpa(a.gpa));
+
           const projDiv = document.createElement('div');
           projDiv.className = 'project-board';
           projDiv.innerHTML = `
@@ -844,7 +858,7 @@
         return;
       }
 
-      // 5. تجميع وترتيب التخصصات بالترتيب الحقيقي
+      // 5. تجميع الأقسام وفرز الطلاب داخل كل تخصص تنازلياً بدقة
       const filteredDeptGroups = {};
       filteredStudents.forEach(student => {
         const dept = student.department ? student.department.trim() : 'عام';
@@ -852,9 +866,15 @@
         filteredDeptGroups[dept].push(student);
       });
 
+      // فرز الطلاب داخل كل قسم تنازلياً حسب المعدل التراكمي
+      Object.keys(filteredDeptGroups).forEach(dept => {
+        filteredDeptGroups[dept].sort((a, b) => parseGpa(b.gpa) - parseGpa(a.gpa));
+      });
+
+      // ترتيب التخصصات بناءً على أعلى طالب في كل تخصص
       const sortedDepts = Object.keys(filteredDeptGroups).map(dept => {
         const topGpaInDept = allDeptGroups[dept] && allDeptGroups[dept].length > 0 
-          ? (parseFloat(allDeptGroups[dept][0].gpa) || 0) 
+          ? parseGpa(allDeptGroups[dept][0].gpa) 
           : 0;
         return {
           name: dept,
@@ -878,6 +898,7 @@
 
         const currentGrid = sectionDiv.querySelector('.grid-container');
         group.students.forEach(student => {
+          // تمرير الترتيب الفعلي الثابت للطالب
           currentGrid.innerHTML += createCardHTML(student, student.actualDeptRank || 0);
         });
       });
