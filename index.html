@@ -312,13 +312,13 @@
       position: absolute;
       top: 12px;
       left: 12px;
-      background: rgba(59, 130, 246, 0.2);
-      border: 1px solid rgba(59, 130, 246, 0.5);
-      color: #93c5fd;
+      background: var(--gold-gradient);
+      color: #0f172a;
       font-size: 0.75rem;
-      font-weight: 800;
-      padding: 3px 8px;
+      font-weight: 900;
+      padding: 4px 10px;
       border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
     .crown-tag {
@@ -709,12 +709,9 @@
       }
     }
 
-    // دالة دقيقة لتحويل وقراءة المعدل التراكمي مهما كانت طريقة كتابته
     function parseGpa(val) {
       if (!val) return 0;
-      let str = String(val).trim()
-        .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
-        .replace(',', '.');
+      let str = String(val).trim().replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(',', '.');
       let num = parseFloat(str);
       return isNaN(num) ? 0 : num;
     }
@@ -727,12 +724,22 @@
       console.error("Firestore Error:", error);
     });
 
-    function createCardHTML(student, deptRank = 0) {
-      let top10Badge = (deptRank > 0 && deptRank <= 10) ? `<div class="badge-top-10">🏅 المركز ${deptRank}</div>` : '';
+    // دالة تحديد شارة الترتيب بدقة وحجب أي شخص محدد له hideRank: true
+    function getEffectiveRank(student) {
+      if (student.hideRank === true) return null;
+      if (student.customRank && String(student.customRank).trim() !== '') {
+        return student.customRank;
+      }
+      return (student.actualDeptRank > 0 && student.actualDeptRank <= 10) ? student.actualDeptRank : null;
+    }
+
+    function createCardHTML(student) {
+      const effRank = getEffectiveRank(student);
+      let top10Badge = effRank ? `<div class="badge-top-10">🏅 المركز ${effRank}</div>` : '';
       let crownTag = student.isTop ? `<div class="crown-tag">👑 أوائل المعهد</div>` : '';
 
       return `
-        <div class="memory-card ${student.isTop ? 'top-rank' : ''} ${student.submitted ? 'submitted' : 'pending'}" onclick="openProfileModal('${student.id}', ${deptRank})">
+        <div class="memory-card ${student.isTop ? 'top-rank' : ''} ${student.submitted ? 'submitted' : 'pending'}" onclick="openProfileModal('${student.id}')">
           ${crownTag}
           ${top10Badge}
           <div class="avatar-wrapper">
@@ -771,7 +778,7 @@
       let submittedCount = 0;
       allStudents.forEach(s => { if (s.submitted) submittedCount++; });
 
-      // 1. تجميع وترتيب كل قسم تنازلياً وفقاً للمعدل وحساب الترتيب الحقيقي
+      // 1. حساب الترتيب التلقائي الدقيق لكل طالب في قسمه
       const allDeptGroups = {};
       allStudents.forEach(student => {
         const dept = student.department ? student.department.trim() : 'عام';
@@ -780,7 +787,6 @@
       });
 
       Object.keys(allDeptGroups).forEach(dept => {
-        // ترتيب تنازلي حقيقي ودقيق للمعدل
         allDeptGroups[dept].sort((a, b) => parseGpa(b.gpa) - parseGpa(a.gpa));
         allDeptGroups[dept].forEach((student, idx) => {
           student.actualDeptRank = idx + 1;
@@ -796,14 +802,14 @@
         return nameMatch || deptMatch || projMatch || honorsMatch;
       });
 
-      // 3. عرض أوائل المعهد بالأعلى (مرتبين تنازلياً حسب المعدل)
+      // 3. عرض أوائل المعهد بالأعلى
       const topStudents = filteredStudents.filter(s => s.isTop);
       topStudents.sort((a, b) => parseGpa(b.gpa) - parseGpa(a.gpa));
 
       if (topStudents.length > 0) {
         topSection.style.display = 'block';
         topStudents.forEach(student => {
-          topGrid.innerHTML += createCardHTML(student, student.actualDeptRank || 0);
+          topGrid.innerHTML += createCardHTML(student);
         });
       } else {
         topSection.style.display = 'none';
@@ -830,7 +836,6 @@
         projectsSection.style.display = 'block';
         projectKeys.forEach(projKey => {
           const projData = projectGroups[projKey];
-          // ترتيب الطلاب داخل كل مشروع تنازلياً حسب المعدل
           projData.members.sort((a, b) => parseGpa(b.gpa) - parseGpa(a.gpa));
 
           const projDiv = document.createElement('div');
@@ -846,7 +851,7 @@
 
           const teamGrid = projDiv.querySelector('.project-team-grid');
           projData.members.forEach(member => {
-            teamGrid.innerHTML += createCardHTML(member, member.actualDeptRank || 0);
+            teamGrid.innerHTML += createCardHTML(member);
           });
         });
       } else {
@@ -866,12 +871,10 @@
         filteredDeptGroups[dept].push(student);
       });
 
-      // فرز الطلاب داخل كل قسم تنازلياً حسب المعدل التراكمي
       Object.keys(filteredDeptGroups).forEach(dept => {
         filteredDeptGroups[dept].sort((a, b) => parseGpa(b.gpa) - parseGpa(a.gpa));
       });
 
-      // ترتيب التخصصات بناءً على أعلى طالب في كل تخصص
       const sortedDepts = Object.keys(filteredDeptGroups).map(dept => {
         const topGpaInDept = allDeptGroups[dept] && allDeptGroups[dept].length > 0 
           ? parseGpa(allDeptGroups[dept][0].gpa) 
@@ -898,8 +901,7 @@
 
         const currentGrid = sectionDiv.querySelector('.grid-container');
         group.students.forEach(student => {
-          // تمرير الترتيب الفعلي الثابت للطالب
-          currentGrid.innerHTML += createCardHTML(student, student.actualDeptRank || 0);
+          currentGrid.innerHTML += createCardHTML(student);
         });
       });
 
@@ -907,7 +909,7 @@
       document.getElementById('submittedCount').innerText = submittedCount;
     }
 
-    function openProfileModal(studentId, deptRank) {
+    function openProfileModal(studentId) {
       const student = allStudents.find(s => s.id === studentId);
       if (!student) return;
 
@@ -923,10 +925,12 @@
         avatarBox.innerHTML = `<span style="font-size:4rem;">🎓</span>`;
       }
 
+      const effRank = getEffectiveRank(student);
       const rankWrap = document.getElementById('modalRankWrap');
       let rankText = [];
       if (student.isTop) rankText.push('👑 من أوائل المعهد');
-      if (deptRank > 0) rankText.push(`🏅 المركز ${deptRank} على القسم`);
+      if (effRank) rankText.push(`🏅 المركز ${effRank} على القسم`);
+
       if (rankText.length > 0) {
         rankWrap.style.display = 'flex';
         document.getElementById('modalStudentRank').innerText = rankText.join(' | ');
