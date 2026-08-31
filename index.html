@@ -129,11 +129,11 @@
 
     /* شريط العداد التنازلي للحفل */
     .countdown-section {
-      display: none;
+      display: block;
       max-width: 650px;
       margin: 0 auto 25px;
       padding: 16px 20px;
-      background: rgba(15, 23, 42, 0.8);
+      background: rgba(15, 23, 42, 0.85);
       backdrop-filter: blur(12px);
       border: 1.5px solid rgba(251, 191, 36, 0.4);
       border-radius: 20px;
@@ -155,7 +155,7 @@
     }
 
     .countdown-box {
-      background: rgba(30, 41, 59, 0.8);
+      background: rgba(30, 41, 59, 0.85);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 8px 14px;
@@ -212,6 +212,16 @@
       background: rgba(255, 255, 255, 0.08);
       color: #ffffff;
       border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-facebook {
+      background: #1877f2;
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(24, 119, 242, 0.35);
+    }
+    .btn-facebook:hover {
+      background: #166fe5;
+      transform: translateY(-2px);
     }
 
     .search-wrapper {
@@ -435,7 +445,6 @@
       margin-bottom: 10px;
     }
 
-    /* زر التفاعل المباشر على البطاقة */
     .card-react-btn {
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--border);
@@ -579,7 +588,7 @@
       outline: none;
     }
 
-    /* كارت الـ Story لتوليد الصورة بالـ Canvas */
+    /* قالب الـ Story للإنستجرام والفيسبوك */
     #storyCardTemplate {
       position: fixed;
       left: -9999px;
@@ -618,7 +627,7 @@
     
     <p>لحظات وتعب سنين نوثقها هنا لتظل فخراً وذكرى خالدة بيننا مهما طالت الأيام ✨</p>
 
-    <!-- شريط العداد التنازلي للحفل -->
+    <!-- شريط العداد التنازلي للحفل (يعمل تلقائياً ومباشرة) -->
     <div class="countdown-section" id="countdownWrapper">
       <div class="countdown-title" id="countdownTitleText">⏳ متبقي على بدء حفل التخرج:</div>
       <div class="countdown-grid">
@@ -675,7 +684,7 @@
     </p>
   </div>
 
-  <!-- Modal تفاصيل الطالب المكبرة مع زر تحميل الـ Story -->
+  <!-- Modal تفاصيل الطالب المكبرة مع أزرار التحميل والمشاركة على فيسبوك -->
   <div class="modal-overlay" id="profileModal" onclick="if(event.target===this) closeProfileModal()">
     <div class="modal-box" style="text-align: center;">
       <div class="modal-header">
@@ -715,10 +724,15 @@
         <div id="modalStudentNote" class="card-note" style="margin-top:4px; text-align:center;">—</div>
       </div>
 
-      <!-- زر تحميل بطاقة الـ Story -->
-      <button class="btn btn-gold" id="downloadStoryBtn" style="width:100%; margin-top:10px; font-size:0.95rem;" onclick="generateStoryCardImage()">
-        📲 تحميل بطاقة التخرج (Story)
-      </button>
+      <!-- أزرار الإجراءات: تحميل الـ Story والمشاركة على فيسبوك -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:12px;">
+        <button class="btn btn-gold" id="downloadStoryBtn" style="font-size:0.9rem; padding:10px;" onclick="generateStoryCardImage()">
+          📲 تحميل البطاقة
+        </button>
+        <button class="btn btn-facebook" style="font-size:0.9rem; padding:10px;" onclick="shareOnFacebook()">
+          📢 مشاركة فيسبوك
+        </button>
+      </div>
     </div>
   </div>
 
@@ -825,7 +839,13 @@
     let tempPhotoBase64 = '';
     let countdownInterval = null;
 
-    window.addEventListener('load', () => launchConfetti());
+    // موعد افتراضي لحفل التخرج للتأكد من عمل العداد دائماً
+    let eventDateString = '2026-09-15T18:00';
+
+    window.addEventListener('load', () => {
+      launchConfetti();
+      startCountdown(eventDateString, 'متبقي على بدء حفل التخرج');
+    });
 
     function launchConfetti() {
       if (typeof confetti === 'function') {
@@ -845,15 +865,13 @@
       return isNaN(num) ? 0 : num;
     }
 
-    // قراءة إعدادات العداد التنازلي من قاعدة البيانات
+    // مزامنة موعد العداد التنازلي من قاعدة البيانات
     db.collection("settings").doc("general").onSnapshot((doc) => {
       if (doc.exists) {
         const data = doc.data();
-        if (data.showCountdown && data.eventDate) {
-          startCountdown(data.eventDate, data.eventTitle);
-        } else {
-          document.getElementById('countdownWrapper').style.display = 'none';
-          if (countdownInterval) clearInterval(countdownInterval);
+        if (data.eventDate) {
+          eventDateString = data.eventDate;
+          startCountdown(eventDateString, data.eventTitle || 'متبقي على بدء حفل التخرج');
         }
       }
     });
@@ -910,9 +928,8 @@
       return (student.actualDeptRank > 0 && student.actualDeptRank <= 10) ? student.actualDeptRank : null;
     }
 
-    // دالة إضافة تبريكات / إعجاب لكارت الطالب
     async function sendCongratulation(e, studentId) {
-      e.stopPropagation(); // منع فتح الـ Modal
+      e.stopPropagation();
       try {
         await db.collection("students").doc(studentId).update({
           likes: firebase.firestore.FieldValue.increment(1)
@@ -1153,12 +1170,20 @@
       document.getElementById('profileModal').style.display = 'none';
     }
 
-    // دالة توليد وتنزيل كارت الـ Story عالي الجودة
+    // دالة مشاركة بطاقة التخرج على فيسبوك مباشرة
+    function shareOnFacebook() {
+      if (!selectedStudentForStory) return;
+      const url = encodeURIComponent(window.location.href);
+      const text = encodeURIComponent(`🎓 فخور بتخرجي من معهد طيبة العالي لتكنولوجيا الإدارة والمعلومات - الدفعة 93! مبارك التخرج لكل زملائي ✨`);
+      const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`;
+      window.open(fbShareUrl, '_blank', 'width=600,height=500');
+    }
+
     async function generateStoryCardImage() {
       if (!selectedStudentForStory) return;
 
       const btn = document.getElementById('downloadStoryBtn');
-      btn.innerText = '⏳ جاري تصميم بطاقة التخرج...';
+      btn.innerText = '⏳ جاري التصميم...';
       btn.disabled = true;
 
       const student = selectedStudentForStory;
@@ -1202,7 +1227,7 @@
       } catch (err) {
         alert('حدث خطأ أثناء توليد الصورة: ' + err.message);
       } finally {
-        btn.innerText = '📲 تحميل بطاقة التخرج (Story)';
+        btn.innerText = '📲 تحميل البطاقة';
         btn.disabled = false;
       }
     }
